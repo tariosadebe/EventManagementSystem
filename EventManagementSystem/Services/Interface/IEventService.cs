@@ -11,5 +11,7 @@ namespace EventManagementSystem.Services
         Task<List<Event>> GetAllEvents();
         Task<Event> UpdateEvent(int eventId, EventDto eventDto);
         Task<bool> DeleteEvent(int eventId);
+        Task<EventComment> AddCommentToEvent(int eventId, EventCommentDto commentDto);
+        Task<List<EventComment>> GetCommentsForEvent(int eventId);
     }
 }
