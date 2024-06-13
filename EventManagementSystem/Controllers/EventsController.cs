@@ -1,9 +1,10 @@
 ﻿using EventManagementSystem.Models;
 using EventManagementSystem.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace EventManagementSystem.Controllers
 {
@@ -11,69 +12,98 @@ namespace EventManagementSystem.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IEventService _eventService;
+        private readonly IEventService _eventService; private readonly ILogger<EventsController> _logger;
 
-        public EventsController(IEventService eventService)
+        public EventsController(IEventService eventService, ILogger<EventsController> logger)
         {
-            _eventService = eventService;
+            _eventService = eventService; _logger = logger;
         }
 
-        // GET: api/events
         [HttpGet]
         public async Task<ActionResult<List<Event>>> GetAllEvents()
         {
-            var events = await _eventService.GetAllEvents();
-            return Ok(events);
+            try
+            {
+                var events = await _eventService.GetAllEvents();
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all events");
+                return StatusCode(500, new { Message = "An error occurred while retrieving events." });
+            }
         }
 
-        // GET: api/events/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Event>> GetEventById(int id)
         {
-            var @event = await _eventService.GetEventById(id);
-
-            if (@event == null)
+            try
             {
-                return NotFound();
-            }
+                var eventItem = await _eventService.GetEventById(id);
 
-            return Ok(@event);
+                if (eventItem == null) return NotFound(new { Message = "Event not found." });
+
+                return Ok(eventItem);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving event with ID {EventId}", id);
+                return StatusCode(500, new { Message = "An error occurred while retrieving the event." });
+            }
         }
 
-        // POST: api/events
         [HttpPost]
         public async Task<ActionResult<Event>> CreateEvent(EventDto eventDto)
         {
-            var newEvent = await _eventService.CreateEvent(eventDto);
-            return CreatedAtAction(nameof(GetEventById), new { id = newEvent.Id }, newEvent);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+
+                var newEvent = await _eventService.CreateEvent(eventDto);
+                return CreatedAtAction(nameof(GetEventById), new { id = newEvent.Id }, newEvent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating event");
+                return StatusCode(500, new { Message = "An error occurred while creating the event." });
+            }
         }
 
-        // PUT: api/events/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateEvent(int id, EventDto eventDto)
         {
-            var updatedEvent = await _eventService.UpdateEvent(id, eventDto);
-
-            if (updatedEvent == null)
+            try
             {
-                return NotFound();
-            }
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            return NoContent();
+                var updatedEvent = await _eventService.UpdateEvent(id, eventDto);
+                if (updatedEvent == null) return NotFound(new { Message = "Event not found." });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating event with ID {EventId}", id);
+                return StatusCode(500, new { Message = "An error occurred while updating the event." });
+            }
         }
 
-        // DELETE: api/events/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEvent(int id)
         {
-            var result = await _eventService.DeleteEvent(id);
-
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var result = await _eventService.DeleteEvent(id);
 
-            return NoContent();
+                if (!result) return NotFound(new { Message = "Event not found." });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting event with ID {EventId}", id);
+                return StatusCode(500, new { Message = "An error occurred while deleting the event." });
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Text;
 using EventManagementSystem.Services;
 using EventManagementSystem.Models;
 using EventManagementSystem.Data;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +80,12 @@ builder.Services.AddSwaggerGen(c =>
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole();
+    loggingBuilder.AddDebug();
+});
 
 var app = builder.Build();
 
