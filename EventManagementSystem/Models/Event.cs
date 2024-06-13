@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Tracing;
+﻿using System.Collections.Generic;
 
 namespace EventManagementSystem.Models
 {
@@ -10,6 +10,9 @@ namespace EventManagementSystem.Models
         public DateTime Date { get; set; }
         public string Location { get; set; }
         public string Organizer { get; set; }
+
+        public ICollection<Attendee> Attendees { get; set; }
+
         public ICollection<EventComment> Comments { get; set; }
     }
 }
