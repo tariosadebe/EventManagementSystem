@@ -15,5 +15,6 @@ namespace EventManagementSystem.Models
         // Navigation properties
         public ICollection<Attendee> Attendees { get; set; } // Event has many attendees
         public ICollection<EventComment> Comments { get; set; } // Event has many comments
+        public ICollection<Feedback> Feedbacks { get; set; }
     }
 }

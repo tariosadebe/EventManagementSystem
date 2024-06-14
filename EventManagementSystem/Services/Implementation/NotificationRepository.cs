@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using EventManagementSystem.Models;
+using EventManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementSystem.Data

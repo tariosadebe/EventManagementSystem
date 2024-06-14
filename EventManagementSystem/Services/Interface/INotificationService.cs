@@ -4,6 +4,8 @@ namespace EventManagementSystem.Services
 {
     public interface INotificationService
     {
-        Task ProcessPendingNotificationsAsync();
+        Task ProcessPendingNotificationsAsync(); // Ensure this method is defined
+        Task ProcessEmailNotifications();
+        Task ProcessSmsNotifications();
     }
 }

@@ -13,11 +13,8 @@ namespace EventManagementSystem.Services
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<NotificationService> _logger;
 
-        public NotificationService(
-            IEmailService emailService,
-            ISmsService smsService,
-            INotificationRepository notificationRepository,
-            ILogger<NotificationService> logger)
+        public NotificationService(IEmailService emailService, ISmsService smsService,
+            INotificationRepository notificationRepository, ILogger<NotificationService> logger)
         {
             _emailService = emailService;
             _smsService = smsService;
@@ -27,34 +24,47 @@ namespace EventManagementSystem.Services
 
         public async Task ProcessPendingNotificationsAsync()
         {
-            var pendingEmailNotifications = await _notificationRepository.GetPendingEmailNotifications();
-            foreach (var emailNotification in pendingEmailNotifications)
-            {
-                try
-                {
-                    await _emailService.SendEmailAsync(emailNotification.RecipientEmail, "Subject", emailNotification.Content);
-                    emailNotification.Status = NotificationStatus.Processed;
-                    await _notificationRepository.UpdateEmailNotification(emailNotification);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error sending email notification to {Email}", emailNotification.RecipientEmail);
-                }
-            }
+            await ProcessEmailNotifications();
+            await ProcessSmsNotifications();
+        }
 
-            var pendingSmsNotifications = await _notificationRepository.GetPendingSmsNotifications();
-            foreach (var smsNotification in pendingSmsNotifications)
+        public async Task ProcessEmailNotifications()
+        {
+            var pendingEmails = await _notificationRepository.GetPendingEmailNotifications();
+
+            foreach (var email in pendingEmails)
             {
                 try
                 {
-                    await _smsService.SendSmsAsync(smsNotification.PhoneNumber, smsNotification.Message);
-                    smsNotification.Status = NotificationStatus.Processed;
-                    await _notificationRepository.UpdateSmsNotification(smsNotification);
+                    await _emailService.SendEmailAsync(email.RecipientEmail, email.Subject, email.Body);
+                    email.Status = NotificationStatus.Processed;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error sending SMS notification to {PhoneNumber}", smsNotification.PhoneNumber);
+                    _logger.LogError(ex, "Error sending email to {RecipientEmail}", email.RecipientEmail);
+                    email.Status = NotificationStatus.Failed;
                 }
+                await _notificationRepository.UpdateEmailNotification(email);
+            }
+        }
+
+        public async Task ProcessSmsNotifications()
+        {
+            var pendingSms = await _notificationRepository.GetPendingSmsNotifications();
+
+            foreach (var sms in pendingSms)
+            {
+                try
+                {
+                    await _smsService.SendSmsAsync(sms.RecipientPhoneNumber, sms.Message);
+                    sms.Status = NotificationStatus.Processed;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error sending SMS to {RecipientPhoneNumber}", sms.RecipientPhoneNumber);
+                    sms.Status = NotificationStatus.Failed;
+                }
+                await _notificationRepository.UpdateSmsNotification(sms);
             }
         }
     }
