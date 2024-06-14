@@ -27,7 +27,8 @@ namespace EventManagementSystem.Services
             try
             {
                 var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email);
-                if (existingUser != null) throw new Exception("User already exists");
+                if (existingUser != null)
+                    throw new Exception("User already exists");
 
                 var user = new User
                 {
@@ -38,7 +39,6 @@ namespace EventManagementSystem.Services
                     FirstName = userDto.FirstName,
                     LastName = userDto.LastName,
                     Phone = userDto.Phone,
-                    BirthDate = userDto.BirthDate,
                     Address = userDto.Address,
                     City = userDto.City,
                     State = userDto.State,

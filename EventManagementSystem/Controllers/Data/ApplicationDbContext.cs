@@ -11,6 +11,8 @@ namespace EventManagementSystem.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Attendee> Attendees { get; set; }
         public DbSet<EventComment> EventComments { get; set; }
+        public DbSet<EmailNotification> EmailNotifications { get; set; }  // Add this line
+        public DbSet<SmsNotification> SmsNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
