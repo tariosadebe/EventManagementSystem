@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using EventManagementSystem.Data;
 using EventManagementSystem.Models;
@@ -15,9 +13,11 @@ namespace EventManagementSystem.Services
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<NotificationService> _logger;
 
-        public NotificationService(IEmailService emailService, ISmsService smsService,
-                                   INotificationRepository notificationRepository,
-                                   ILogger<NotificationService> logger)
+        public NotificationService(
+            IEmailService emailService,
+            ISmsService smsService,
+            INotificationRepository notificationRepository,
+            ILogger<NotificationService> logger)
         {
             _emailService = emailService;
             _smsService = smsService;
@@ -25,53 +25,37 @@ namespace EventManagementSystem.Services
             _logger = logger;
         }
 
-        public async Task ProcessPendingNotifications(CancellationToken cancellationToken)
+        public async Task ProcessPendingNotificationsAsync()
         {
-            _logger.LogInformation("Processing pending notifications...");
-
-            var pendingEmails = await _notificationRepository.GetPendingEmailNotifications();
-            var pendingSms = await _notificationRepository.GetPendingSmsNotifications();
-
-            foreach (var email in pendingEmails)
+            var pendingEmailNotifications = await _notificationRepository.GetPendingEmailNotifications();
+            foreach (var emailNotification in pendingEmailNotifications)
             {
-                if (cancellationToken.IsCancellationRequested) break;
-
                 try
                 {
-                    await _emailService.SendEmailAsync(email.To, email.Subject, email.Body);
-                    email.Status = NotificationStatus.Processed;
+                    await _emailService.SendEmailAsync(emailNotification.RecipientEmail, "Subject", emailNotification.Content);
+                    emailNotification.Status = NotificationStatus.Processed;
+                    await _notificationRepository.UpdateEmailNotification(emailNotification);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error sending email to {To}", email.To);
-                    email.Status = NotificationStatus.Failed;
+                    _logger.LogError(ex, "Error sending email notification to {Email}", emailNotification.RecipientEmail);
                 }
-
-                await _notificationRepository.UpdateEmailNotification(email);
             }
 
-            foreach (var sms in pendingSms)
+            var pendingSmsNotifications = await _notificationRepository.GetPendingSmsNotifications();
+            foreach (var smsNotification in pendingSmsNotifications)
             {
-                if (cancellationToken.IsCancellationRequested) break;
-
                 try
                 {
-                    await _smsService.SendSmsAsync(sms.To, sms.Message);
-                    sms.Status = NotificationStatus.Processed;
+                    await _smsService.SendSmsAsync(smsNotification.PhoneNumber, smsNotification.Message);
+                    smsNotification.Status = NotificationStatus.Processed;
+                    await _notificationRepository.UpdateSmsNotification(smsNotification);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error sending SMS to {To}", sms.To);
-                    sms.Status = NotificationStatus.Failed;
+                    _logger.LogError(ex, "Error sending SMS notification to {PhoneNumber}", smsNotification.PhoneNumber);
                 }
-
-                await _notificationRepository.UpdateSmsNotification(sms);
             }
-        }
-
-        public Task ProcessPendingNotifications()
-        {
-            throw new NotImplementedException();
         }
     }
 }

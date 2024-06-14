@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
 using System.Text;
 using EventManagementSystem.Services;
-using EventManagementSystem.Models;
 using EventManagementSystem.Data;
+using EventManagementSystem.BackgroundServices;
 using Microsoft.Extensions.Logging;
+using EventManagementSystem.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +50,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// Configure background services
+builder.Services.AddHostedService<NotificationBackgroundService>();
 
 // Configure Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -98,13 +101,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Event Management API v1"));
 }
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
-
-// Enable authentication and authorization middleware
+app.UseStaticFiles();
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 

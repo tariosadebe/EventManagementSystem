@@ -4,7 +4,6 @@ namespace EventManagementSystem.Services
 {
     public interface INotificationService
     {
-        Task ProcessPendingNotifications();
+        Task ProcessPendingNotificationsAsync();
     }
 }
-
