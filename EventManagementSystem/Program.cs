@@ -13,6 +13,7 @@ using EventManagementSystem.Data;
 using EventManagementSystem.BackgroundServices;
 using Microsoft.Extensions.Logging;
 using EventManagementSystem.Models;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,15 +45,20 @@ builder.Services.AddAuthorization(options =>
 
 // Register application services
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IEventService, EventManagementSystem.Services.EventService>(); // Fully qualify the reference
 builder.Services.AddScoped<IAttendeeService, AttendeeService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>(); // Register PaymentService
 
 // Configure background services
 builder.Services.AddHostedService<NotificationBackgroundService>();
+
+// Configure Stripe
+var stripeSettings = builder.Configuration.GetSection("Stripe");
+StripeConfiguration.ApiKey = stripeSettings["SecretKey"];
 
 // Configure Swagger
 builder.Services.AddEndpointsApiExplorer();
