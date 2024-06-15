@@ -36,8 +36,10 @@ namespace EventManagementSystem.Services
                     return false;
                 }
 
+                var ticketPurchase = PurchaseTicket(eventId, userId);
+
                 // Generate a unique check-in code
-                var checkInCode = Guid.NewGuid().ToString();
+                // var checkInCode = Guid.NewGuid().ToString();
 
                 // Create a new attendee registration record
                 var newAttendee = new Attendee
@@ -47,7 +49,7 @@ namespace EventManagementSystem.Services
                     RegistrationTime = DateTime.UtcNow,
                     TicketPurchased = false, // Assuming ticket purchase is a separate step
                     CheckInTime = null, // Initialize check-in time as null (not checked in yet),
-                    CheckInCode = checkInCode // Set the generated check-in code
+                    CheckInCode = "" // Set the generated check-in code
                 };
 
                 _context.Attendees.Add(newAttendee);
@@ -68,21 +70,37 @@ namespace EventManagementSystem.Services
         {
             try
             {
-                // Find the attendee record for the user and event
-                var attendee = await _context.Attendees
-                    .FirstOrDefaultAsync(a => a.EventId == eventId && a.UserId == userId);
-
-                if (attendee == null)
+                var evnt = await _context.Events.FirstOrDefaultAsync(a => a.Id == eventId);
+                if (evnt != null) 
                 {
-                    _logger.LogWarning("Attendee with ID {UserId} is not registered for event ID {EventId}. Cannot purchase ticket.", userId, eventId);
+                    _logger.LogInformation("event not found");
                     return false;
+
                 }
 
-                // Update the ticket purchase status
-                attendee.TicketPurchased = true;
+                //var request = new PaymentDto()
+                //{
+                //    Amount =
+                //};
 
-                _context.Attendees.Update(attendee);
-                await _context.SaveChangesAsync();
+                //paymentService.ProcessPaymentAsync();
+
+
+                // Find the attendee record for the user and event
+                //var attendee = await _context.Attendees
+                //    .FirstOrDefaultAsync(a => a.EventId == eventId && a.UserId == userId);
+
+                //if (attendee == null)
+                //{
+                //    _logger.LogWarning("Attendee with ID {UserId} is not registered for event ID {EventId}. Cannot purchase ticket.", userId, eventId);
+                //    return false;
+                //}
+
+                //// Update the ticket purchase status
+                //attendee.TicketPurchased = true;
+
+                //_context.Attendees.Update(attendee);
+                //await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Attendee with ID {UserId} purchased ticket successfully for event ID {EventId}", userId, eventId);
 

@@ -6,12 +6,14 @@ namespace EventManagementSystem.Services
 {
     public interface IEventService
     {
-        Task<Event> CreateEvent(EventDto eventDto);
-        Task<Event> GetEventById(int eventId);
-        Task<List<Event>> GetAllEvents();
-        Task<Event> UpdateEvent(int eventId, EventDto eventDto);
+        Task<int> CreateEvent(EventDto eventDto);
+        Task<IEnumerable<EventDto>> GetAllEvents();
+        Task<EventDto> GetEventById(int eventId);
+        Task<bool> UpdateEvent(int eventId, EventDto eventDto);
         Task<bool> DeleteEvent(int eventId);
-        Task<EventComment> AddCommentToEvent(int eventId, EventCommentDto commentDto);
-        Task<List<EventComment>> GetCommentsForEvent(int eventId);
+        Task<IEnumerable<AttendeeDto>> GetRegisteredAttendees(int eventId);
+        Task<int> GetTicketsSold(int eventId);
+        Task<bool> DeleteEventAsync(int eventId);
+        Task GetEventByIdAsync(int eventId);
     }
 }

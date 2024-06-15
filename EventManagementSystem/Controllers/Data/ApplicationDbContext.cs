@@ -13,7 +13,7 @@ namespace EventManagementSystem.Data
         public DbSet<EventComment> EventComments { get; set; }
         public DbSet<EmailNotification> EmailNotifications { get; set; }
         public DbSet<SmsNotification> SmsNotifications { get; set; }
-        public DbSet<Feedback> Feedbacks { get; set; } // Add this line
+        public DbSet<Feedback> Feedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

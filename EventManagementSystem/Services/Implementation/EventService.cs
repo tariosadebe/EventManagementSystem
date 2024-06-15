@@ -1,166 +1,138 @@
-﻿using EventManagementSystem.Data;
-using EventManagementSystem.Models;
+﻿using EventManagementSystem.Models;
+using EventManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class EventService : IEventService
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<EventService> _logger;
 
-        public EventService(ApplicationDbContext context, ILogger<EventService> logger)
+        public EventService(ApplicationDbContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
-        public async Task<Event> CreateEvent(EventDto eventDto)
+        public async Task<int> CreateEvent(EventDto eventDto)
         {
-            try
+            var newEvent = new Event
             {
-                var newEvent = new Event
+                Title = eventDto.Title,
+                Description = eventDto.Description,
+                Date = eventDto.Date,
+                Location = eventDto.Location,
+                AdminId = eventDto.AdminId // Ensure AdminId is an integer
+            };
+
+            _context.Events.Add(newEvent);
+            await _context.SaveChangesAsync();
+
+            return newEvent.Id;
+        }
+
+        public async Task<IEnumerable<EventDto>> GetAllEvents()
+        {
+            var events = await _context.Events
+                .Select(e => new EventDto
                 {
-                    Title = eventDto.Title,
-                    Description = eventDto.Description,
-                    Date = eventDto.Date,
-                    Location = eventDto.Location,
-                    Organizer = eventDto.Organizer
-                };
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    Date = e.Date,
+                    Location = e.Location,
+                    AdminId = e.AdminId
+                })
+                .ToListAsync();
 
-                _context.Events.Add(newEvent);
-                await _context.SaveChangesAsync();
-
-                return newEvent;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating event");
-                throw;
-            }
+            return events;
         }
 
-        public async Task<Event> GetEventById(int eventId)
+        public async Task<EventDto> GetEventById(int eventId)
         {
-            try
-            {
-                return await _context.Events.FindAsync(eventId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving event with ID {EventId}", eventId);
-                throw;
-            }
+            var @event = await _context.Events
+                .Where(e => e.Id == eventId)
+                .Select(e => new EventDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    Date = e.Date,
+                    Location = e.Location,
+                    AdminId = e.AdminId
+                })
+                .FirstOrDefaultAsync();
+
+            return @event;
         }
 
-        public async Task<List<Event>> GetAllEvents()
+        public async Task<bool> UpdateEvent(int eventId, EventDto eventDto)
         {
-            try
-            {
-                return await _context.Events.ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving all events");
-                throw;
-            }
-        }
+            var existingEvent = await _context.Events.FindAsync(eventId);
 
-        public async Task<Event> UpdateEvent(int eventId, EventDto eventDto)
-        {
-            try
-            {
-                var existingEvent = await _context.Events.FindAsync(eventId);
+            if (existingEvent == null)
+                return false;
 
-                if (existingEvent == null)
-                    return null;
+            existingEvent.Title = eventDto.Title;
+            existingEvent.Description = eventDto.Description;
+            existingEvent.Date = eventDto.Date;
+            existingEvent.Location = eventDto.Location;
 
-                existingEvent.Title = eventDto.Title;
-                existingEvent.Description = eventDto.Description;
-                existingEvent.Date = eventDto.Date;
-                existingEvent.Location = eventDto.Location;
-                existingEvent.Organizer = eventDto.Organizer;
+            _context.Events.Update(existingEvent);
+            await _context.SaveChangesAsync();
 
-                _context.Events.Update(existingEvent);
-                await _context.SaveChangesAsync();
-
-                return existingEvent;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating event with ID {EventId}", eventId);
-                throw;
-            }
+            return true;
         }
 
         public async Task<bool> DeleteEvent(int eventId)
         {
-            try
-            {
-                var existingEvent = await _context.Events.FindAsync(eventId);
+            var existingEvent = await _context.Events.FindAsync(eventId);
 
-                if (existingEvent == null)
-                    return false;
+            if (existingEvent == null)
+                return false;
 
-                _context.Events.Remove(existingEvent);
-                await _context.SaveChangesAsync();
+            _context.Events.Remove(existingEvent);
+            await _context.SaveChangesAsync();
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting event with ID {EventId}", eventId);
-                throw;
-            }
+            return true;
         }
 
-        public async Task<EventComment> AddCommentToEvent(int eventId, EventCommentDto commentDto)
+        public async Task<IEnumerable<AttendeeDto>> GetRegisteredAttendees(int eventId)
         {
-            try
-            {
-                var eventEntity = await _context.Events.FindAsync(eventId);
-                if (eventEntity == null)
-                    throw new ArgumentException("Event not found");
-
-                var comment = new EventComment
+            var attendees = await _context.Attendees
+                .Where(a => a.EventId == eventId)
+                .Select(a => new AttendeeDto
                 {
-                    Comment = commentDto.Comment,
-                    CreatedAt = DateTime.UtcNow,
-                    EventId = eventId
-                };
+                    Id = a.Id,
+                    UserId = a.UserId,
+                    EventId = a.EventId,
+                    RegistrationStatus = a.RegistrationStatus.ToString() // Convert enum to string if necessary
+                    // Include other attendee properties as needed
+                })
+                .ToListAsync();
 
-                _context.EventComments.Add(comment);
-                await _context.SaveChangesAsync();
-
-                return comment;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding comment to event with ID {EventId}", eventId);
-                throw;
-            }
+            return attendees;
         }
 
-        public async Task<List<EventComment>> GetCommentsForEvent(int eventId)
+        public async Task<int> GetTicketsSold(int eventId)
         {
-            try
-            {
-                var eventComments = await _context.EventComments
-                    .Where(ec => ec.EventId == eventId)
-                    .ToListAsync();
+            var ticketsSold = await _context.Attendees
+                .Where(a => a.EventId == eventId && a.RegistrationStatus == RegistrationStatus.Paid)
+                .CountAsync();
 
-                return eventComments;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving comments for event with ID {EventId}", eventId);
-                throw;
-            }
+            return ticketsSold;
+        }
+
+        public Task<bool> DeleteEventAsync(int eventId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task GetEventByIdAsync(int eventId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

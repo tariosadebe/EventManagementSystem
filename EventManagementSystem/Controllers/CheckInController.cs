@@ -1,5 +1,4 @@
-﻿// Controllers/CheckInController.cs
-using EventManagementSystem.Data;
+﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,13 +29,13 @@ namespace EventManagementSystem.Controllers
 
             if (attendee == null)
             {
-                _logger.LogWarning("Invalid check-in code: {CheckInCode}", checkInDto.CheckInCode);
+                _logger.LogWarning($"Invalid check-in code: {checkInDto.CheckInCode}");
                 return NotFound("Invalid check-in code.");
             }
 
             if (attendee.CheckInTime != null)
             {
-                _logger.LogWarning("Attendee with check-in code {CheckInCode} has already checked in.", checkInDto.CheckInCode);
+                _logger.LogWarning($"Attendee with check-in code: {checkInDto.CheckInCode} has already checked in.");
                 return BadRequest("Attendee already checked in.");
             }
 

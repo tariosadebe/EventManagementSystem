@@ -11,8 +11,12 @@ using System.Text;
 using EventManagementSystem.Services;
 using EventManagementSystem.Models;
 using EventManagementSystem.Data;
+using EventManagementSystem.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuration
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -46,9 +50,9 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IAttendeeService, AttendeeService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
-builder.Services.AddScoped<INotificationService, NotificationService>(); // Ensure this is also added
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<IFeedbackService, FeedbackService>(); // Add FeedbackService
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -80,6 +84,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

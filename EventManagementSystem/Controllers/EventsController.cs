@@ -1,109 +1,87 @@
-﻿using EventManagementSystem.Models;
-using EventManagementSystem.Services;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using System;
+using Microsoft.AspNetCore.Mvc;
+using EventManagementSystem.Models;
+using EventManagementSystem.Services;
 
 namespace EventManagementSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EventsController : ControllerBase
+    public class EventController : ControllerBase
     {
-        private readonly IEventService _eventService; private readonly ILogger<EventsController> _logger;
+        private readonly IEventService _eventService;
 
-        public EventsController(IEventService eventService, ILogger<EventsController> logger)
+        public EventController(IEventService eventService)
         {
-            _eventService = eventService; _logger = logger;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<Event>>> GetAllEvents()
-        {
-            try
-            {
-                var events = await _eventService.GetAllEvents();
-                return Ok(events);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving all events");
-                return StatusCode(500, new { Message = "An error occurred while retrieving events." });
-            }
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> GetEventById(int id)
-        {
-            try
-            {
-                var eventItem = await _eventService.GetEventById(id);
-
-                if (eventItem == null) return NotFound(new { Message = "Event not found." });
-
-                return Ok(eventItem);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving event with ID {EventId}", id);
-                return StatusCode(500, new { Message = "An error occurred while retrieving the event." });
-            }
+            _eventService = eventService;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Event>> CreateEvent(EventDto eventDto)
+        public async Task<IActionResult> CreateEvent([FromBody] EventDto eventDto)
         {
-            try
+            var eventId = await _eventService.CreateEvent(eventDto);
+            if (eventId > 0)
             {
-                if (!ModelState.IsValid) return BadRequest(ModelState);
-
-                var newEvent = await _eventService.CreateEvent(eventDto);
-                return CreatedAtAction(nameof(GetEventById), new { id = newEvent.Id }, newEvent);
+                return Ok(eventId);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating event");
-                return StatusCode(500, new { Message = "An error occurred while creating the event." });
-            }
+            return BadRequest("Failed to create event.");
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(int id, EventDto eventDto)
+        [HttpGet]
+        public async Task<IActionResult> GetEvents()
         {
-            try
-            {
-                if (!ModelState.IsValid) return BadRequest(ModelState);
-
-                var updatedEvent = await _eventService.UpdateEvent(id, eventDto);
-                if (updatedEvent == null) return NotFound(new { Message = "Event not found." });
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating event with ID {EventId}", id);
-                return StatusCode(500, new { Message = "An error occurred while updating the event." });
-            }
+            var events = await _eventService.GetAllEvents();
+            return Ok(events);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEvent(int id)
+        [HttpGet("{eventId}")]
+        public async Task<IActionResult> GetEventById(int eventId)
         {
-            try
+            var @event = await _eventService.GetEventById(eventId);
+            if (@event == null)
             {
-                var result = await _eventService.DeleteEvent(id);
-
-                if (!result) return NotFound(new { Message = "Event not found." });
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting event with ID {EventId}", id);
-                return StatusCode(500, new { Message = "An error occurred while deleting the event." });
-            }
+            return Ok(@event);
         }
+
+        [HttpPut("{eventId}")]
+        public async Task<IActionResult> UpdateEvent(int eventId, [FromBody] EventDto eventDto)
+        {
+            var result = await _eventService.UpdateEvent(eventId, eventDto);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return Ok("Event updated successfully.");
+        }
+
+        [HttpDelete("{eventId}")]
+        public async Task<IActionResult> DeleteEvent(int eventId)
+        {
+            var result = await _eventService.DeleteEvent(eventId);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return Ok("Event deleted successfully.");
+        }
+
+        [HttpGet("{eventId}/attendees")]
+        public async Task<IActionResult> GetRegisteredAttendees(int eventId)
+        {
+            var attendees = await _eventService.GetRegisteredAttendees(eventId);
+            return Ok(attendees);
+        }
+
+        [HttpGet("{eventId}/tickets-sold")]
+        public async Task<IActionResult> GetTicketsSold(int eventId)
+        {
+            var ticketsSold = await _eventService.GetTicketsSold(eventId);
+            return Ok(ticketsSold);
+        }
+
+        // Add more endpoints as needed for event management
     }
 }

@@ -17,14 +17,18 @@ namespace EventManagementSystem.Controllers
         }
 
         [HttpPost("process")]
-        public async Task<IActionResult> ProcessPayment(PaymentDto paymentDto)
+        public async Task<IActionResult> ProcessPayment([FromBody] PaymentDto paymentDto)
         {
             var result = await _paymentService.ProcessPaymentAsync(paymentDto);
+
             if (result.Success)
             {
                 return Ok(result);
             }
-            return BadRequest(result);
+            else
+            {
+                return BadRequest(result);
+            }
         }
     }
 }
