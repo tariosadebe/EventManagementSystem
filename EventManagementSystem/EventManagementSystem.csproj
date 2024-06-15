@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
 	  <WarningLevel>4</WarningLevel>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <OutputPath>..\NewOutputDirectory\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
