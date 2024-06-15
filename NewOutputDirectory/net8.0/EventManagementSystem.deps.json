@@ -14,6 +14,7 @@
           "Microsoft.EntityFrameworkCore": "8.0.6",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.6",
           "Portable.BouncyCastle": "1.9.0",
+          "QRCoder": "1.5.1",
           "SendGrid": "9.29.3",
           "Stripe.net": "44.12.0",
           "Swashbuckle.AspNetCore": "6.6.2",
@@ -409,6 +410,14 @@
           "lib/netstandard2.0/BouncyCastle.Crypto.dll": {
             "assemblyVersion": "1.9.0.0",
             "fileVersion": "1.9.0.1"
+          }
+        }
+      },
+      "QRCoder/1.5.1": {
+        "runtime": {
+          "lib/net6.0/QRCoder.dll": {
+            "assemblyVersion": "1.5.1.0",
+            "fileVersion": "1.5.1.0"
           }
         }
       },
@@ -1073,6 +1082,13 @@
       "sha512": "sha512-eZZBCABzVOek+id9Xy04HhmgykF0wZg9wpByzrWN7q8qEI0Qen9b7tfd7w8VA3dOeesumMG7C5ZPy0jk7PSRHw==",
       "path": "portable.bouncycastle/1.9.0",
       "hashPath": "portable.bouncycastle.1.9.0.nupkg.sha512"
+    },
+    "QRCoder/1.5.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+v8VntytuDw4R1nCNJkSA7SWSizJoQfiByV1+nUjOwrDZEuaxefG73aKuuQjpaGtoZ7qlXpRbK70C23m1h3WLw==",
+      "path": "qrcoder/1.5.1",
+      "hashPath": "qrcoder.1.5.1.nupkg.sha512"
     },
     "SendGrid/9.29.3": {
       "type": "package",

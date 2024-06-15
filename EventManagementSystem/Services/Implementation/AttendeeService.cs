@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using QRCoder; // Add QRCoder for generating QR codes
+using System.IO;
+using System.Drawing;
 
 namespace EventManagementSystem.Services
 {
@@ -33,6 +36,9 @@ namespace EventManagementSystem.Services
                     return false;
                 }
 
+                // Generate a unique check-in code
+                var checkInCode = Guid.NewGuid().ToString();
+
                 // Create a new attendee registration record
                 var newAttendee = new Attendee
                 {
@@ -40,7 +46,8 @@ namespace EventManagementSystem.Services
                     UserId = userId,
                     RegistrationTime = DateTime.UtcNow,
                     TicketPurchased = false, // Assuming ticket purchase is a separate step
-                    CheckInTime = null // Initialize check-in time as null (not checked in yet)
+                    CheckInTime = null, // Initialize check-in time as null (not checked in yet),
+                    CheckInCode = checkInCode // Set the generated check-in code
                 };
 
                 _context.Attendees.Add(newAttendee);
@@ -123,6 +130,17 @@ namespace EventManagementSystem.Services
             {
                 _logger.LogError(ex, "Error checking in attendee with ID {UserId} for event ID {EventId}", userId, eventId);
                 throw;
+            }
+        }
+
+        // Generate QR code for check-in
+        public string GenerateQrCode(string checkInCode)
+        {
+            using (var qrGenerator = new QRCodeGenerator())
+            {
+                var qrCodeData = qrGenerator.CreateQrCode(checkInCode, QRCodeGenerator.ECCLevel.Q);
+                var qrCode = new Base64QRCode(qrCodeData);
+                return qrCode.GetGraphic(20); // Return base64 string of the QR code
             }
         }
     }
