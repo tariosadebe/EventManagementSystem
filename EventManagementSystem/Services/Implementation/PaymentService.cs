@@ -1,41 +1,125 @@
-﻿using EventManagementSystem.Models;
-using Stripe;
+﻿using EventManagementSystem.Data;
+using EventManagementSystem.Models;
+using EventManagementSystem.Services.Implementation;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
+using PaymentResult = EventManagementSystem.Models.PaymentResult;
 
 namespace EventManagementSystem.Services
 {
     public class PaymentService : IPaymentService
     {
-        public async Task<PaymentResponseDto> ProcessPaymentAsync(PaymentDto paymentDto)
+        private readonly ApplicationDbContext _context;
+        private readonly ITicketService _ticketService;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<PaymentService> _logger;
+
+        public PaymentService(ApplicationDbContext context, ITicketService ticketService, IEmailService emailService, ILogger<PaymentService> logger)
+        {
+            _context = context;
+            _ticketService = ticketService;
+            _emailService = emailService;
+            _logger = logger;
+        }
+
+        public async Task<PaymentResult> ProcessPaymentAsync(PaymentDto paymentDto)
         {
             try
             {
-                var options = new ChargeCreateOptions
-                {
-                    Amount = (long)(paymentDto.Amount * 100), // Stripe deals with the smallest currency unit
-                    Currency = paymentDto.Currency,
-                    Description = paymentDto.Description,
-                    Source = paymentDto.Token,
-                };
+                // Simulate payment processing logic
+                var paymentSuccess = SimulatePaymentGatewayResponse(paymentDto);
 
-                var service = new ChargeService();
-                Charge charge = await service.CreateAsync(options);
-
-                return new PaymentResponseDto
+                if (!paymentSuccess)
                 {
-                    PaymentId = charge.Id,
-                    Success = charge.Status == "succeeded",
-                    Message = charge.Status == "succeeded" ? "Payment successful" : "Payment failed"
+                    _logger.LogWarning($"Payment failed for Ticket ID {paymentDto.TicketId}");
+                    return new PaymentResult
+                    {
+                        Success = false,
+                        Message = "Payment processing failed."
+                    };
+                }
+
+                // Update the ticket status to paid if payment is successful
+                var ticket = await _ticketService.GetTicketByIdAsync(paymentDto.TicketId);
+                if (ticket == null)
+                {
+                    _logger.LogWarning($"Ticket not found for ID {paymentDto.TicketId}");
+                    return new PaymentResult
+                    {
+                        Success = false,
+                        Message = "Ticket not found."
+                    };
+                }
+
+                ticket.IsPaid = true;
+                ticket.Code = GenerateTicketCode();
+                await _ticketService.UpdateTicketAsync(ticket);
+
+                // Send confirmation email with ticket code
+                var emailSent = await _emailService.SendEmailAsync(ticket.User.Email, "Ticket Confirmation", $"Your payment was successful. Your ticket code is {ticket.Code}.");
+                if (!emailSent)
+                {
+                    _logger.LogWarning($"Failed to send confirmation email to {ticket.User.Email}");
+                    return new PaymentResult
+                    {
+                        Success = true,
+                        Message = "Payment processed, but failed to send confirmation email.",
+                        TransactionId = GenerateTransactionId()
+                    };
+                }
+
+                _logger.LogInformation($"Payment processed successfully for Ticket ID {paymentDto.TicketId}");
+
+                return new PaymentResult
+                {
+                    Success = true,
+                    Message = "Payment processed successfully.",
+                    TransactionId = GenerateTransactionId()
                 };
             }
-            catch (StripeException ex)
+            catch (Exception ex)
             {
-                return new PaymentResponseDto
+                _logger.LogError(ex, $"Error processing payment for Ticket ID {paymentDto.TicketId}");
+                return new PaymentResult
                 {
                     Success = false,
-                    Message = ex.Message
+                    Message = "An error occurred while processing the payment."
                 };
             }
+        }
+
+        private bool SimulatePaymentGatewayResponse(PaymentDto paymentDto)
+        {
+            // Simulate a payment gateway response
+            // In a real application, this would involve making an API call to a payment gateway
+
+            // For simulation, let's assume payments with an amount greater than zero and a valid payment method are successful
+            if (paymentDto.Amount > 0 && !string.IsNullOrEmpty(paymentDto.PaymentMethod))
+            {
+                // Simulate a random success rate
+                Random rnd = new Random();
+                return rnd.Next(100) < 90; // 90% success rate
+            }
+
+            return false;
+        }
+
+        private string GenerateTransactionId()
+        {
+            // Generate a simulated transaction ID
+            return $"TXN{Guid.NewGuid().ToString("N").Substring(0, 10).ToUpper()}";
+        }
+
+        private string GenerateTicketCode()
+        {
+            // Generate a unique ticket code
+            return $"TICKET{Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper()}";
+        }
+
+        Task<Models.PaymentResult> IPaymentService.ProcessPaymentAsync(PaymentDto paymentDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

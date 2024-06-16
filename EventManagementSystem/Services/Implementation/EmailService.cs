@@ -23,5 +23,10 @@ namespace EventManagementSystem.Services
             var msg = MailHelper.CreateSingleEmail(from, to, subject, message, message);
             var response = await client.SendEmailAsync(msg);
         }
+
+        Task<bool> IEmailService.SendEmailAsync(string to, string subject, string body)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
