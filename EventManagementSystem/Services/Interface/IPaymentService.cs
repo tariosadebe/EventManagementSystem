@@ -5,6 +5,6 @@ namespace EventManagementSystem.Services
 {
     public interface IPaymentService
     {
-        Task<PaymentResult> ProcessPaymentAsync(PaymentDto paymentDto);
+        Task<PaymentResponseDto> ProcessPaymentAsync(PaymentDto paymentDto);
     }
 }

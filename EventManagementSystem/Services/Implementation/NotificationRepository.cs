@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
-using EventManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace EventManagementSystem.Data
+namespace EventManagementSystem.Services.Implementation
 {
     public class NotificationRepository : INotificationRepository
     {
@@ -16,30 +15,36 @@ namespace EventManagementSystem.Data
             _context = context;
         }
 
-        public async Task<List<EmailNotification>> GetPendingEmailNotifications()
+        public async Task<IEnumerable<Notification>> GetNotificationsAsync()
         {
-            return await _context.EmailNotifications
-                .Where(e => e.Status == NotificationStatus.Pending)
-                .ToListAsync();
+            return await _context.Notifications.ToListAsync();
         }
 
-        public async Task<List<SmsNotification>> GetPendingSmsNotifications()
+        public async Task<Notification> GetNotificationByIdAsync(int id)
         {
-            return await _context.SmsNotifications
-                .Where(s => s.Status == NotificationStatus.Pending)
-                .ToListAsync();
+            return await _context.Notifications.FindAsync(id);
         }
 
-        public async Task UpdateEmailNotification(EmailNotification emailNotification)
+        public async Task AddNotificationAsync(Notification notification)
         {
-            _context.EmailNotifications.Update(emailNotification);
+            await _context.Notifications.AddAsync(notification);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateSmsNotification(SmsNotification smsNotification)
+        public async Task UpdateNotificationAsync(Notification notification)
         {
-            _context.SmsNotifications.Update(smsNotification);
+            _context.Notifications.Update(notification);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteNotificationAsync(int id)
+        {
+            var notification = await _context.Notifications.FindAsync(id);
+            if (notification != null)
+            {
+                _context.Notifications.Remove(notification);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

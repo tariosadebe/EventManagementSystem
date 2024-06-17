@@ -1,32 +1,47 @@
-﻿using EventManagementSystem.Options;
-using Microsoft.Extensions.Options;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+﻿using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class EmailService : IEmailService
     {
-        private readonly SendGridOptions _sendGridOptions;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IOptions<SendGridOptions> sendGridOptions)
+        public EmailService(ILogger<EmailService> logger)
         {
-            _sendGridOptions = sendGridOptions.Value;
+            _logger = logger;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string message)
+        public async Task<bool> SendEmailAsync(string toEmail, string subject, string message)
         {
-            var client = new SendGridClient(_sendGridOptions.ApiKey);
-            var from = new EmailAddress(_sendGridOptions.FromEmail, _sendGridOptions.FromName);
-            var to = new EmailAddress(toEmail);
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, message, message);
-            var response = await client.SendEmailAsync(msg);
-        }
+            try
+            {
+                var smtpClient = new SmtpClient("smtp.example.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential("username@example.com", "password"),
+                    EnableSsl = true,
+                };
 
-        Task<bool> IEmailService.SendEmailAsync(string to, string subject, string body)
-        {
-            throw new NotImplementedException();
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("no-reply@example.com"),
+                    Subject = subject,
+                    Body = message,
+                    IsBodyHtml = true,
+                };
+                mailMessage.To.Add(toEmail);
+
+                await smtpClient.SendMailAsync(mailMessage);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending email to {Email}", toEmail);
+                return false;
+            }
         }
     }
 }

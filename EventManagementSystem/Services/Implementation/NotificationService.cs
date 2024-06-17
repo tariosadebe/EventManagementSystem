@@ -1,71 +1,49 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using Microsoft.Extensions.Logging;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class NotificationService : INotificationService
     {
-        private readonly IEmailService _emailService;
-        private readonly ISmsService _smsService;
-        private readonly INotificationRepository _notificationRepository;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<NotificationService> _logger;
 
-        public NotificationService(IEmailService emailService, ISmsService smsService,
-            INotificationRepository notificationRepository, ILogger<NotificationService> logger)
+        public NotificationService(ApplicationDbContext context, ILogger<NotificationService> logger)
         {
-            _emailService = emailService;
-            _smsService = smsService;
-            _notificationRepository = notificationRepository;
+            _context = context;
             _logger = logger;
         }
 
         public async Task ProcessPendingNotificationsAsync()
         {
-            await ProcessEmailNotifications();
-            await ProcessSmsNotifications();
+            // Implementation for processing pending notifications
         }
 
-        public async Task ProcessEmailNotifications()
+        public async Task<Notification> GetNotificationByIdAsync(int id)
         {
-            var pendingEmails = await _notificationRepository.GetPendingEmailNotifications();
-
-            foreach (var email in pendingEmails)
-            {
-                try
-                {
-                    await _emailService.SendEmailAsync(email.RecipientEmail, email.Subject, email.Body);
-                    email.Status = NotificationStatus.Processed;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error sending email to {RecipientEmail}", email.RecipientEmail);
-                    email.Status = NotificationStatus.Failed;
-                }
-                await _notificationRepository.UpdateEmailNotification(email);
-            }
+            return await _context.Notifications.FindAsync(id);
         }
 
-        public async Task ProcessSmsNotifications()
+        public Task<IEnumerable<Notification>> GetAllNotificationsAsync()
         {
-            var pendingSms = await _notificationRepository.GetPendingSmsNotifications();
+            throw new NotImplementedException();
+        }
 
-            foreach (var sms in pendingSms)
-            {
-                try
-                {
-                    await _smsService.SendSmsAsync(sms.RecipientPhoneNumber, sms.Message);
-                    sms.Status = NotificationStatus.Processed;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error sending SMS to {RecipientPhoneNumber}", sms.RecipientPhoneNumber);
-                    sms.Status = NotificationStatus.Failed;
-                }
-                await _notificationRepository.UpdateSmsNotification(sms);
-            }
+        public Task AddNotificationAsync(Notification notification)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateNotificationAsync(Notification notification)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteNotificationAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

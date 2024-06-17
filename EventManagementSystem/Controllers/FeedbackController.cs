@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using EventManagementSystem.Models;
-using EventManagementSystem.Services;
+using EventManagementSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,8 +26,27 @@ namespace EventManagementSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _feedbackService.AddFeedbackAsync(feedbackDto);
-            return Ok();
+            try
+            {
+                int feedbackId = await _feedbackService.AddFeedbackAsync(feedbackDto);
+                return CreatedAtAction(nameof(GetFeedbackById), new { id = feedbackId }, null);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error adding feedback: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFeedbackById(int id)
+        {
+            var feedback = await _feedbackService.GetFeedbackByIdAsync(id);
+            if (feedback == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(feedback);
         }
 
         [HttpGet("event/{eventId}")]

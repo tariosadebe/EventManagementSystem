@@ -2,12 +2,14 @@
 using System.Threading.Tasks;
 using EventManagementSystem.Models;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Interfaces
 {
     public interface IFeedbackService
     {
-        Task AddFeedbackAsync(FeedbackDto feedbackDto);
-        Task<List<Feedback>> GetFeedbackByEventAsync(int eventId);
-        Task<List<Feedback>> GetFeedbackByUserAsync(int userId);
+        Task<int> AddFeedbackAsync(FeedbackDto feedbackDto);
+        Task<Feedback> GetFeedbackByIdAsync(int id);
+        Task<IEnumerable<Feedback>> GetFeedbackByEventAsync(int eventId);
+        Task<IEnumerable<Feedback>> GetFeedbackByUserAsync(int userId);
+        Task<IEnumerable<Feedback>> GetFeedbackForEventAsync(int eventId);
     }
 }

@@ -1,134 +1,82 @@
 ﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class AdminService : IAdminService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<AdminService> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<AdminService> _logger;
 
-        public AdminService(UserManager<ApplicationUser> userManager, ILogger<AdminService> logger, ApplicationDbContext context)
+        public AdminService(ApplicationDbContext context, ILogger<AdminService> logger)
         {
-            _userManager = userManager;
-            _logger = logger;
             _context = context;
+            _logger = logger;
         }
 
-        public async Task<bool> CreateAdminAsync(AdminDto adminDto)
+        public Task<bool> CreateAdminAsync(AdminDto adminDto)
         {
-            var user = new ApplicationUser
-            {
-                UserName = adminDto.Username,
-                Email = adminDto.Email,
-                Name = $"{adminDto.FirstName} {adminDto.LastName}", // Assuming Name represents full name
-                Phone = adminDto.Phone,
-                Address = adminDto.Address,
-                City = adminDto.City,
-                State = adminDto.State,
-                ZipCode = adminDto.ZipCode,
-                Country = adminDto.Country
-            };
-
-            var result = await _userManager.CreateAsync(user, adminDto.Password);
-
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, Roles.Admin);
-                return true;
-            }
-            else
-            {
-                foreach (var error in result.Errors)
-                {
-                    _logger.LogError($"Error creating admin user: {error.Description}");
-                }
-                return false;
-            }
+            throw new NotImplementedException();
         }
 
-        public async Task<bool> DeleteEventAsync(int eventId)
+        public async Task<bool> DeleteEventAsync(int eventId, string adminId)
         {
-            var eventToDelete = await _context.Events.FindAsync(eventId);
+            var eventToDelete = await _context.Events.Include(e => e.Tickets)
+                                                     .FirstOrDefaultAsync(e => e.Id == eventId);
+
             if (eventToDelete == null)
             {
-                _logger.LogError($"Event with ID {eventId} not found.");
+                _logger.LogWarning($"Event with ID {eventId} not found.");
+                return false;
+            }
+
+            if (eventToDelete.AdminId != adminId)
+            {
+                _logger.LogWarning($"Admin ID {adminId} does not match the admin ID of the event {eventId}.");
+                return false;
+            }
+
+            if (eventToDelete.Tickets.Any(t => t.IsSold))
+            {
+                _logger.LogWarning($"Event {eventId} has sold tickets and cannot be deleted.");
+                return false;
+            }
+
+            if (eventToDelete.Date > DateTime.Now)
+            {
+                _logger.LogWarning($"Event {eventId} is upcoming and cannot be deleted.");
                 return false;
             }
 
             _context.Events.Remove(eventToDelete);
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Event {eventId} deleted successfully.");
             return true;
         }
 
-        public async Task<IEnumerable<EventDto>> GetAdminEventsAsync(string adminId)
+        public Task<bool> DeleteEventAsync(int eventId)
         {
-            if (!int.TryParse(adminId, out int adminIdInt))
-            {
-                _logger.LogError($"Invalid admin ID: {adminId}");
-                return Enumerable.Empty<EventDto>();
-            }
-
-            var events = await _context.Events
-                .Where(e => e.AdminId == adminIdInt)
-                .ToListAsync();
-
-            return events.Select(e => new EventDto
-            {
-                Id = e.Id,
-                Title = e.Title,
-                Description = e.Description,
-                Date = e.Date,
-                Location = e.Location,
-                AdminId = e.AdminId
-            });
+            throw new NotImplementedException();
         }
 
-        public async Task<EventDto> GetEventByIdAsync(int eventId)
+        public Task<IEnumerable<EventDto>> GetAdminEventsAsync(string adminId)
         {
-            var @event = await _context.Events.FindAsync(eventId);
-            if (@event == null)
-            {
-                _logger.LogError($"Event with ID {eventId} not found.");
-                return null;
-            }
-
-            return new EventDto
-            {
-                Id = @event.Id,
-                Title = @event.Title,
-                Description = @event.Description,
-                Date = @event.Date,
-                Location = @event.Location,
-                AdminId = @event.AdminId
-            };
+            throw new NotImplementedException();
         }
 
-        public async Task<bool> UpdateEventAsync(int eventId, EventDto eventDto)
+        public Task<EventDto> GetEventByIdAsync(int eventId)
         {
-            var eventToUpdate = await _context.Events.FindAsync(eventId);
-            if (eventToUpdate == null)
-            {
-                _logger.LogError($"Event with ID {eventId} not found.");
-                return false;
-            }
+            throw new NotImplementedException();
+        }
 
-            eventToUpdate.Title = eventDto.Title;
-            eventToUpdate.Description = eventDto.Description;
-            eventToUpdate.Date = eventDto.Date;
-            eventToUpdate.Location = eventDto.Location;
-
-            _context.Events.Update(eventToUpdate);
-            await _context.SaveChangesAsync();
-            return true;
+        public Task<bool> UpdateEventAsync(int eventId, EventDto eventDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

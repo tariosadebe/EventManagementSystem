@@ -1,12 +1,10 @@
-﻿using EventManagementSystem.Data;
-using EventManagementSystem.Models;
-using EventManagementSystem.Services.Implementation;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using PaymentResult = EventManagementSystem.Models.PaymentResult;
+using EventManagementSystem.Data;
+using EventManagementSystem.Models;
+using Microsoft.Extensions.Logging;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class PaymentService : IPaymentService
     {
@@ -23,7 +21,7 @@ namespace EventManagementSystem.Services
             _logger = logger;
         }
 
-        public async Task<PaymentResult> ProcessPaymentAsync(PaymentDto paymentDto)
+        public async Task<PaymentResponseDto> ProcessPaymentAsync(PaymentDto paymentDto)
         {
             try
             {
@@ -33,7 +31,7 @@ namespace EventManagementSystem.Services
                 if (!paymentSuccess)
                 {
                     _logger.LogWarning($"Payment failed for Ticket ID {paymentDto.TicketId}");
-                    return new PaymentResult
+                    return new PaymentResponseDto
                     {
                         Success = false,
                         Message = "Payment processing failed."
@@ -45,7 +43,7 @@ namespace EventManagementSystem.Services
                 if (ticket == null)
                 {
                     _logger.LogWarning($"Ticket not found for ID {paymentDto.TicketId}");
-                    return new PaymentResult
+                    return new PaymentResponseDto
                     {
                         Success = false,
                         Message = "Ticket not found."
@@ -56,12 +54,35 @@ namespace EventManagementSystem.Services
                 ticket.Code = GenerateTicketCode();
                 await _ticketService.UpdateTicketAsync(ticket);
 
+                // Get the event to retrieve the admin/user information
+                var eventDetails = await _context.Events.FindAsync(ticket.EventId);
+                if (eventDetails == null)
+                {
+                    _logger.LogWarning($"Event not found for Ticket ID {paymentDto.TicketId}");
+                    return new PaymentResponseDto
+                    {
+                        Success = false,
+                        Message = "Event not found."
+                    };
+                }
+
+                var admin = await _context.Users.FindAsync(eventDetails.AdminId);
+                if (admin == null)
+                {
+                    _logger.LogWarning($"Admin not found for Event ID {eventDetails.Id}");
+                    return new PaymentResponseDto
+                    {
+                        Success = false,
+                        Message = "Admin not found."
+                    };
+                }
+
                 // Send confirmation email with ticket code
-                var emailSent = await _emailService.SendEmailAsync(ticket.User.Email, "Ticket Confirmation", $"Your payment was successful. Your ticket code is {ticket.Code}.");
+                var emailSent = await _emailService.SendEmailAsync(admin.Email, "Ticket Confirmation", $"Your payment was successful. Your ticket code is {ticket.Code}.");
                 if (!emailSent)
                 {
-                    _logger.LogWarning($"Failed to send confirmation email to {ticket.User.Email}");
-                    return new PaymentResult
+                    _logger.LogWarning($"Failed to send confirmation email to {admin.Email}");
+                    return new PaymentResponseDto
                     {
                         Success = true,
                         Message = "Payment processed, but failed to send confirmation email.",
@@ -71,7 +92,7 @@ namespace EventManagementSystem.Services
 
                 _logger.LogInformation($"Payment processed successfully for Ticket ID {paymentDto.TicketId}");
 
-                return new PaymentResult
+                return new PaymentResponseDto
                 {
                     Success = true,
                     Message = "Payment processed successfully.",
@@ -81,7 +102,7 @@ namespace EventManagementSystem.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error processing payment for Ticket ID {paymentDto.TicketId}");
-                return new PaymentResult
+                return new PaymentResponseDto
                 {
                     Success = false,
                     Message = "An error occurred while processing the payment."
@@ -115,11 +136,6 @@ namespace EventManagementSystem.Services
         {
             // Generate a unique ticket code
             return $"TICKET{Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper()}";
-        }
-
-        Task<Models.PaymentResult> IPaymentService.ProcessPaymentAsync(PaymentDto paymentDto)
-        {
-            throw new NotImplementedException();
         }
     }
 }

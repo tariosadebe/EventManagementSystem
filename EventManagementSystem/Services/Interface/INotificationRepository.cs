@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using EventManagementSystem.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventManagementSystem.Models;
 
-namespace EventManagementSystem.Data
+namespace EventManagementSystem.Services
 {
     public interface INotificationRepository
     {
-        Task<List<EmailNotification>> GetPendingEmailNotifications();
-        Task<List<SmsNotification>> GetPendingSmsNotifications();
-        Task UpdateEmailNotification(EmailNotification emailNotification);
-        Task UpdateSmsNotification(SmsNotification smsNotification);
+        Task<IEnumerable<Notification>> GetNotificationsAsync();
+        Task<Notification> GetNotificationByIdAsync(int id);
+        Task AddNotificationAsync(Notification notification);
+        Task UpdateNotificationAsync(Notification notification);
+        Task DeleteNotificationAsync(int id);
     }
 }

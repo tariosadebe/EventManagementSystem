@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+using EventManagementSystem.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using EventManagementSystem.Services;
 
 namespace EventManagementSystem.BackgroundServices
 {
     public class NotificationBackgroundService : BackgroundService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<NotificationBackgroundService> _logger;
 
-        public NotificationBackgroundService(IServiceScopeFactory scopeFactory, ILogger<NotificationBackgroundService> logger)
+        public NotificationBackgroundService(INotificationService notificationService, ILogger<NotificationBackgroundService> logger)
         {
-            _scopeFactory = scopeFactory;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -23,13 +22,11 @@ namespace EventManagementSystem.BackgroundServices
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                _logger.LogInformation("Notification background service running.");
+
                 try
                 {
-                    using (var scope = _scopeFactory.CreateScope())
-                    {
-                        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
-                        await notificationService.ProcessPendingNotificationsAsync();
-                    }
+                    await _notificationService.ProcessPendingNotificationsAsync();
                 }
                 catch (Exception ex)
                 {

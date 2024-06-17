@@ -8,8 +8,8 @@ namespace EventManagementSystem.Models
         public int EventId { get; set; }
         public int UserId { get; set; }
         public int Rating { get; set; }
-        public string Comments { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string Comments { get; set; }  // Renamed from 'Comment' for consistency
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;  // Renamed from 'DateCreated' for consistency
 
         public Event Event { get; set; }
         public User User { get; set; }

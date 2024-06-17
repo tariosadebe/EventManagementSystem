@@ -5,5 +5,6 @@
         public string PaymentId { get; set; }
         public bool Success { get; set; }
         public string Message { get; set; }
+        public string TransactionId { get; internal set; }
     }
 }
