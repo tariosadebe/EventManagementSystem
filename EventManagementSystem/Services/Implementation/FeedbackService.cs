@@ -25,8 +25,8 @@ namespace EventManagementSystem.Services.Implementation
                 EventId = feedbackDto.EventId,
                 UserId = feedbackDto.UserId,
                 Rating = feedbackDto.Rating,
-                Comments = feedbackDto.Comments,  // Corrected to match the model property name
-                CreatedAt = DateTime.UtcNow  // Ensure this matches the model property name
+                Comments = feedbackDto.Comments,  
+                CreatedAt = DateTime.UtcNow  
             };
 
             _context.Feedbacks.Add(feedback);
