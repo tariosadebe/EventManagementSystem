@@ -25,5 +25,7 @@ namespace EventManagementSystem.Models
 
         // Navigation properties
         public ICollection<Attendee> Attendees { get; set; } // User has many attendees
+        public string Password { get; internal set; }
+        public string IdentityDocument { get; internal set; }
     }
 }

@@ -13,5 +13,6 @@
         public User User { get; set; }
         public bool IsPaid { get; internal set; }
         public string Code { get; internal set; }
+        public TicketType Type { get; internal set; }
     }
 }

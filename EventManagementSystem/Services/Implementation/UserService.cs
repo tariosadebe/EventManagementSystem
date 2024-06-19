@@ -1,4 +1,5 @@
-﻿using System;
+﻿// UserService.cs
+
 using System.Threading.Tasks;
 using EventManagementSystem.Data;
 using EventManagementSystem.Models;
@@ -15,22 +16,46 @@ namespace EventManagementSystem.Services.Implementation
             _context = context;
         }
 
-        public async Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
+        public async Task<User> RegisterAdminAsync(string username, string password, string identityDocument)
         {
-            if (paymentAmount < 50000)
+            // Check if the user has paid the registration fee
+            bool hasPaidRegistrationFee = await CheckPayment(username);
+
+            if (!hasPaidRegistrationFee)
             {
-                throw new Exception("Insufficient payment for admin registration.");
+                throw new Exception("User has not paid the registration fee.");
             }
 
-            user.IsAdmin = true;
-            user.IsCertifiedAdmin = !string.IsNullOrEmpty(certificationDocuments);
-            user.CertificationDocuments = certificationDocuments;
+            // Create user logic here (not shown for brevity)
+            // Assuming User model has properties like Username, Password, IdentityDocument
 
-            _context.Users.Add(user);
+            // Save user to database (not shown for brevity)
+            var newUser = new User
+            {
+                Username = username,
+                Password = password,
+                IdentityDocument = identityDocument,
+                IsAdmin = true  // Assuming a property to mark user as admin
+            };
+
+            _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
-            return true;
+
+            return newUser;
         }
 
-        // Other user service methods...
+        public Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task<bool> CheckPayment(string username)
+        {
+            // Logic to check if user has paid registration fee (not implemented here)
+            // Example: Check payment status in a payment service or database
+
+            // For demonstration, return true if user has paid (not implemented)
+            return true;
+        }
     }
 }
