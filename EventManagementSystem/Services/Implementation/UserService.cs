@@ -17,7 +17,7 @@ namespace EventManagementSystem.Services.Implementation
 
         public async Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
         {
-            if (paymentAmount < 1000)
+            if (paymentAmount < 50000)
             {
                 throw new Exception("Insufficient payment for admin registration.");
             }
