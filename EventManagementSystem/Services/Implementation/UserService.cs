@@ -1,5 +1,4 @@
-﻿// UserService.cs
-
+﻿using System;
 using System.Threading.Tasks;
 using EventManagementSystem.Data;
 using EventManagementSystem.Models;
@@ -44,9 +43,20 @@ namespace EventManagementSystem.Services.Implementation
             return newUser;
         }
 
-        public Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
+        public async Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
         {
-            throw new NotImplementedException();
+            if (paymentAmount < 50000)
+            {
+                throw new Exception("Insufficient payment for admin registration. Minimum payment amount is 50,000 Naira.");
+            }
+
+            user.IsAdmin = true;
+            user.IsCertifiedAdmin = !string.IsNullOrEmpty(certificationDocuments);
+            user.CertificationDocuments = certificationDocuments;
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         private async Task<bool> CheckPayment(string username)

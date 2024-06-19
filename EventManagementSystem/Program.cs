@@ -7,13 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
 using System.Text;
 using EventManagementSystem.Data;
-using EventManagementSystem.Models;
 using EventManagementSystem.Services;
 using EventManagementSystem.Services.Implementation;
 using EventManagementSystem.Services.Interfaces;
+using EventManagementSystem.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using EventManagementSystem.Services.Interfaces;
 using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,7 @@ namespace EventManagementSystem.Services.Implementation
         {
             try
             {
-                // Simulate payment processing logic
+                // Simulating payment processing logic
                 var paymentSuccess = SimulatePaymentGatewayResponse(paymentDto);
 
                 if (!paymentSuccess)
@@ -136,6 +137,11 @@ namespace EventManagementSystem.Services.Implementation
         {
             // Generate a unique ticket code
             return $"TICKET{Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper()}";
+        }
+
+        public Task<bool> ProcessPaymentAsync(decimal amount, string currency, string userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
