@@ -6,5 +6,6 @@
         public TicketType TicketType { get; set; }
         public int EventId { get; set; }
         public string UserId { get; set; }
+        public bool IsVIP { get; set; } 
     }
 }

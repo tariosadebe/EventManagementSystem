@@ -1,4 +1,6 @@
-﻿namespace EventManagementSystem.Models
+﻿using System.Collections.Generic;
+
+namespace EventManagementSystem.Models
 {
     public class User
     {
@@ -15,6 +17,11 @@
         public string Country { get; set; }
         public string Role { get; set; }
         public string PasswordHash { get; set; }
+
+        // Additional fields
+        public bool IsAdmin { get; set; }
+        public bool IsCertifiedAdmin { get; set; }
+        public string CertificationDocuments { get; set; }
 
         // Navigation properties
         public ICollection<Attendee> Attendees { get; set; } // User has many attendees
