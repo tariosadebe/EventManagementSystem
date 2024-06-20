@@ -1,5 +1,4 @@
-﻿
-namespace EventManagementSystem.Models
+﻿namespace EventManagementSystem.Models
 {
     public class Order
     {
@@ -9,5 +8,8 @@ namespace EventManagementSystem.Models
         public decimal TotalAmount { get; set; }
         public OrderStatus Status { get; set; }
         public List<Ticket> Tickets { get; set; }
+
+        public Event Event { get; set; }
+        public User User { get; set; }
     }
 }

@@ -1,9 +1,5 @@
 ﻿using EventManagementSystem.Data;
-using EventManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EventManagementSystem.Services.Implementation
 {

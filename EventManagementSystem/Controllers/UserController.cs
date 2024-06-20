@@ -21,7 +21,7 @@ namespace EventManagementSystem.Controllers
         {
             var user = new User
             {
-                Username = userDto.Username,
+                UserName = userDto.Username,
                 PasswordHash = HashPassword(userDto.Password),
                 Email = userDto.Email,
                 Phone = userDto.Phone,

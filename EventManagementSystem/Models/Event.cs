@@ -9,6 +9,11 @@
         public string Location { get; set; }
         public bool IsActive { get; set; }
         public string AdminId { get; set; }
-        public ICollection<Ticket> Tickets { get; set; }
+
+        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public ICollection<Attendee> Attendees { get; set; } = new List<Attendee>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }

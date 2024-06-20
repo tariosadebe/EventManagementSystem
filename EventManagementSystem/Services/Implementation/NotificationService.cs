@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using EventManagementSystem.Data;
+﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
-using EventManagementSystem.Services.Interfaces;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementSystem.Services.Implementation

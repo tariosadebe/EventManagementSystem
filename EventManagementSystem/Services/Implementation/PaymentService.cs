@@ -1,9 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using EventManagementSystem.Services.Interfaces;
-using EventManagementSystem.Data;
+﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
-using Microsoft.Extensions.Logging;
 
 namespace EventManagementSystem.Services.Implementation
 {

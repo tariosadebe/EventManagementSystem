@@ -1,8 +1,6 @@
 ﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace EventManagementSystem.Services.Implementation
 {

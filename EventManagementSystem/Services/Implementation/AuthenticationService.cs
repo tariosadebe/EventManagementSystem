@@ -1,15 +1,10 @@
 ﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EventManagementSystem.Services
 {
@@ -32,7 +27,7 @@ namespace EventManagementSystem.Services
 
                 var user = new User
                 {
-                    Username = userDto.Username,
+                    UserName = userDto.Username,
                     Email = userDto.Email,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
                     Role = Roles.User,

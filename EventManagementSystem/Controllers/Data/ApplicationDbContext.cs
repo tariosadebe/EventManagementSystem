@@ -21,7 +21,15 @@ namespace EventManagementSystem.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure entity relationships if necessary
+            // Configure entity relationships
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Tickets)
+                .WithOne(t => t.Order)
+                .HasForeignKey(t => t.OrderId);
+
+            modelBuilder.Entity<Notification>()
+                .Ignore(n => n.Email)
+                .Ignore(n => n.Subject);
         }
     }
 }

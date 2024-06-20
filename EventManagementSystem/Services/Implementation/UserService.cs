@@ -1,9 +1,6 @@
 ﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using EventManagementSystem.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
 
 namespace EventManagementSystem.Services.Implementation
 {

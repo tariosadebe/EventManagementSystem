@@ -3,7 +3,7 @@
     public class User
     {
         public string Id { get; set; } // Primary key
-        public string Username { get; set; }
+        public string UserName { get; internal set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
@@ -18,5 +18,8 @@
 
         // Navigation properties
         public ICollection<Attendee> Attendees { get; set; }
+
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }
