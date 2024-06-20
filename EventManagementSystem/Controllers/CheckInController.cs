@@ -47,9 +47,4 @@ namespace EventManagementSystem.Controllers
             return Ok("Check-in successful.");
         }
     }
-
-    public class CheckInDto
-    {
-        public string CheckInCode { get; set; }
-    }
 }
