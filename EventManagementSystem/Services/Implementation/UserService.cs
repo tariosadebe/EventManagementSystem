@@ -18,7 +18,7 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(RegisterAdminAsync)}(User user, decimal paymentAmount, string certificationDocuments) is not implemented.");
         }
 
         public async Task<User> RegisterUserAsync(User user, string role)
@@ -31,12 +31,12 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task RegisterUserAsync(User user, object role)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(RegisterUserAsync)}(User user, object role) is not implemented.");
         }
 
         public Task<bool> RegisterUserAsync(User user)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(RegisterUserAsync)}(User user) is not implemented.");
         }
 
         // Other user service methods...

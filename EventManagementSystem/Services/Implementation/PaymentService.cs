@@ -141,7 +141,7 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task<bool> ProcessPaymentAsync(decimal amount, string currency, string userId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(ProcessPaymentAsync)}(decimal amount, string currency, string userId) is not implemented.");
         }
     }
 }

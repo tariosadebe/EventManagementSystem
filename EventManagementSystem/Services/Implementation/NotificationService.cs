@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using EventManagementSystem.Data;
 using EventManagementSystem.Models;
+using EventManagementSystem.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementSystem.Services.Implementation
 {
@@ -19,6 +23,20 @@ namespace EventManagementSystem.Services.Implementation
         public async Task ProcessPendingNotificationsAsync()
         {
             // Implementation for processing pending notifications
+            var pendingNotifications = await _context.Notifications
+                .Where(n => !n.IsSent)
+                .ToListAsync();
+
+            foreach (var notification in pendingNotifications)
+            {
+                // Process and send the notification
+                // Example: _emailService.SendEmailAsync(notification.Email, notification.Subject, notification.Message);
+
+                notification.IsSent = true;
+                _context.Notifications.Update(notification);
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Notification> GetNotificationByIdAsync(int id)
@@ -26,24 +44,44 @@ namespace EventManagementSystem.Services.Implementation
             return await _context.Notifications.FindAsync(id);
         }
 
-        public Task<IEnumerable<Notification>> GetAllNotificationsAsync()
+        public async Task<IEnumerable<Notification>> GetAllNotificationsAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Notifications.ToListAsync();
         }
 
-        public Task AddNotificationAsync(Notification notification)
+        public async Task AddNotificationAsync(Notification notification)
         {
-            throw new NotImplementedException();
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
         }
 
-        public Task UpdateNotificationAsync(Notification notification)
+        public async Task UpdateNotificationAsync(Notification notification)
         {
-            throw new NotImplementedException();
+            var existingNotification = await _context.Notifications.FindAsync(notification.Id);
+            if (existingNotification == null)
+            {
+                throw new NotImplementedException($"Notification with ID {notification.Id} not found.");
+            }
+
+            existingNotification.Message = notification.Message;
+            existingNotification.Email = notification.Email;
+            existingNotification.Subject = notification.Subject;
+            existingNotification.IsSent = notification.IsSent;
+
+            _context.Notifications.Update(existingNotification);
+            await _context.SaveChangesAsync();
         }
 
-        public Task DeleteNotificationAsync(int id)
+        public async Task DeleteNotificationAsync(int id)
         {
-            throw new NotImplementedException();
+            var notification = await _context.Notifications.FindAsync(id);
+            if (notification == null)
+            {
+                throw new NotImplementedException($"Notification with ID {id} not found.");
+            }
+
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
         }
     }
 }

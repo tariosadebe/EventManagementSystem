@@ -3,6 +3,7 @@ using EventManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task<bool> CreateAdminAsync(AdminDto adminDto)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method CreateAdminAsync is not implemented.");
         }
 
         public async Task<bool> DeleteEventAsync(int eventId, string adminId)
@@ -61,22 +62,22 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task<bool> DeleteEventAsync(int eventId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method DeleteEventAsync without adminId is not implemented.");
         }
 
         public Task<IEnumerable<EventDto>> GetAdminEventsAsync(string adminId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method GetAdminEventsAsync is not implemented.");
         }
 
         public Task<EventDto> GetEventByIdAsync(int eventId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method GetEventByIdAsync is not implemented.");
         }
 
         public Task<bool> UpdateEventAsync(int eventId, EventDto eventDto)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method UpdateEventAsync is not implemented.");
         }
     }
 }

@@ -50,17 +50,17 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task<bool> RegisterAttendee(int eventId, string userId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method RegisterAttendee is not implemented.");
         }
 
         public Task<bool> PurchaseTicket(int eventId, string userId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method PurchaseTicket is not implemented.");
         }
 
         public Task<bool> CheckInAttendee(int eventId, string userId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method CheckInAttendee is not implemented.");
         }
     }
 }

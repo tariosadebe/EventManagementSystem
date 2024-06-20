@@ -57,7 +57,7 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task<IEnumerable<Feedback>> GetFeedbackByEventAsync(int eventId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The method GetFeedbackByEventAsync is not implemented.");
         }
     }
 }

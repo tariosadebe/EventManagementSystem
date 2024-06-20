@@ -35,12 +35,12 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task CreateTicketAsync(Ticket ticket)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(CreateTicketAsync)}(Ticket ticket) is not implemented.");
         }
 
         public Task<Ticket> GetTicketByIdAsync(int ticketId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(GetTicketByIdAsync)}(int ticketId) is not implemented.");
         }
 
         public async Task<IEnumerable<Ticket>> GetTicketsByEventIdAsync(int eventId)
@@ -52,17 +52,17 @@ namespace EventManagementSystem.Services.Implementation
 
         public Task<bool> SetTicketPriceAsync(int ticketId, decimal price)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(SetTicketPriceAsync)}(int ticketId, decimal price) is not implemented.");
         }
 
         public Task<bool> UpdateTicketAsync(Ticket ticket)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(UpdateTicketAsync)}(Ticket ticket) is not implemented.");
         }
 
         Task<List<Ticket>> ITicketService.GetTicketsByEventIdAsync(int eventId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{nameof(GetTicketsByEventIdAsync)}(int eventId) in {nameof(ITicketService)} is not implemented.");
         }
 
         // Other ticket service methods...
