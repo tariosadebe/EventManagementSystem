@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using EventManagementSystem.Dtos;
+﻿using EventManagementSystem.Models;
 using EventManagementSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace EventManagementSystem.Controllers
 {
@@ -17,26 +16,32 @@ namespace EventManagementSystem.Controllers
             _userService = userService;
         }
 
-        [HttpPost("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegistrationDto adminRegistrationDto)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserRegistrationDto userDto)
         {
-            if (!ModelState.IsValid)
+            var user = new User
             {
-                return BadRequest(ModelState);
+                Username = userDto.Username,
+                PasswordHash = HashPassword(userDto.Password),
+                Email = userDto.Email,
+                Phone = userDto.Phone,
+                Role = userDto.Role
+            };
+
+            var result = await _userService.RegisterUserAsync(user);
+
+            if (!result)
+            {
+                return BadRequest("User registration failed.");
             }
 
-            try
-            {
-                await _userService.RegisterAdminAsync(adminRegistrationDto.User, adminRegistrationDto.PaymentAmount,
-                    adminRegistrationDto.CertificationDocuments);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return Ok("User registered successfully.");
         }
 
-        // Other user controller methods...
+        private string HashPassword(string password)
+        {
+            // Implement password hashing logic here
+            return password; // For demonstration purposes only
+        }
     }
 }

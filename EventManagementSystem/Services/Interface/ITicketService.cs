@@ -11,5 +11,6 @@ namespace EventManagementSystem.Services
         Task<Ticket> GetTicketByIdAsync(int ticketId);
         Task<List<Ticket>> GetTicketsByEventIdAsync(int eventId); // Add this method
         Task<bool> UpdateTicketAsync(Ticket ticket);
+        Task<bool> CreateTicketAsync(TicketDto ticketDto);
     }
 }

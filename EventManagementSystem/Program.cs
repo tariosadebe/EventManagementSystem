@@ -53,6 +53,8 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IUserService, UserService>(); // Ensure IUserService is registered
+builder.Services.AddScoped<IOrderService, OrderService>(); // Register OrderService
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -6,6 +6,8 @@ namespace EventManagementSystem.Services.Interfaces
     public interface IUserService
     {
         Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments);
+        Task RegisterUserAsync(User user, object role);
+        Task<bool> RegisterUserAsync(User user);
         // Other user service methods...
     }
 }

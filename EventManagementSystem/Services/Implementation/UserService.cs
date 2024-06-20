@@ -1,8 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using EventManagementSystem.Data;
+﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using EventManagementSystem.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
 
 namespace EventManagementSystem.Services.Implementation
 {
@@ -15,57 +16,29 @@ namespace EventManagementSystem.Services.Implementation
             _context = context;
         }
 
-        public async Task<User> RegisterAdminAsync(string username, string password, string identityDocument)
+        public Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
         {
-            // Check if the user has paid the registration fee
-            bool hasPaidRegistrationFee = await CheckPayment(username);
-
-            if (!hasPaidRegistrationFee)
-            {
-                throw new Exception("User has not paid the registration fee.");
-            }
-
-            // Create user logic here (not shown for brevity)
-            // Assuming User model has properties like Username, Password, IdentityDocument
-
-            // Save user to database (not shown for brevity)
-            var newUser = new User
-            {
-                Username = username,
-                Password = password,
-                IdentityDocument = identityDocument,
-                IsAdmin = true  // Assuming a property to mark user as admin
-            };
-
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-
-            return newUser;
+            throw new NotImplementedException();
         }
 
-        public async Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
+        public async Task<User> RegisterUserAsync(User user, string role)
         {
-            if (paymentAmount < 50000)
-            {
-                throw new Exception("Insufficient payment for admin registration. Minimum payment amount is 50,000 Naira.");
-            }
-
-            user.IsAdmin = true;
-            user.IsCertifiedAdmin = !string.IsNullOrEmpty(certificationDocuments);
-            user.CertificationDocuments = certificationDocuments;
-
+            user.Role = role;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return true;
+            return user;
         }
 
-        private async Task<bool> CheckPayment(string username)
+        public Task RegisterUserAsync(User user, object role)
         {
-            // Logic to check if user has paid registration fee (not implemented here)
-            // Example: Check payment status in a payment service or database
-
-            // For demonstration, return true if user has paid (not implemented)
-            return true;
+            throw new NotImplementedException();
         }
+
+        public Task<bool> RegisterUserAsync(User user)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Other user service methods...
     }
 }

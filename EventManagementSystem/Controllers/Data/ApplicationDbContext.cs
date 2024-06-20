@@ -9,13 +9,19 @@ namespace EventManagementSystem.Data
         {
         }
 
-        public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Attendee> Attendees { get; set; }
+        public DbSet<Order> Orders { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public IEnumerable<object> EmailNotifications { get; internal set; }
-        public IEnumerable<object> SmsNotifications { get; internal set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure entity relationships if necessary
+        }
     }
 }
