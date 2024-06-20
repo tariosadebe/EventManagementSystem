@@ -31,10 +31,11 @@ namespace EventManagementSystem.Services.Implementation
                 .ToListAsync();
         }
 
-        public async Task CreateOrderAsync(Order newOrder)
+        public async Task<Order> CreateOrderAsync(Order order)
         {
-            _context.Orders.Add(newOrder);
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+            return order;
         }
 
         public async Task UpdateOrderAsync(Order updatedOrder)
@@ -61,11 +62,6 @@ namespace EventManagementSystem.Services.Implementation
                 order.Status = OrderStatus.Refunded;
                 await _context.SaveChangesAsync();
             }
-        }
-
-        Task<Order> IOrderService.CreateOrderAsync(Order order)
-        {
-            throw new NotImplementedException();
         }
 
         public Task<bool> ProcessRefundAsync(int id)

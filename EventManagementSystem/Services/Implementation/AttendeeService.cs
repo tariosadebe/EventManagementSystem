@@ -87,20 +87,5 @@ namespace EventManagementSystem.Services.Implementation
             }
             return false;
         }
-
-        public Task<bool> RegisterAttendee(int eventId, string userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> PurchaseTicket(int eventId, string userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> CheckInAttendee(int eventId, string userId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

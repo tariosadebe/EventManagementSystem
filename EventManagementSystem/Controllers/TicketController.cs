@@ -17,16 +17,17 @@ namespace EventManagementSystem.Controllers
             _ticketService = ticketService;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateTicket([FromBody] TicketDto ticketDto)
-        {
-            var result = await _ticketService.CreateTicketAsync(ticketDto);
+        //[HttpPost("create")]
+        //public async Task<IActionResult> CreateTicket([FromBody] Ticket ticketDto)
+        //{
+           
+        //    var result = await _ticketService.CreateTicketAsync(ticketDto);
 
-            if (result)
-                return Ok("Ticket created successfully.");
-            else
-                return BadRequest("Ticket creation failed.");
-        }
+        //    if (result)
+        //        return Ok("Ticket created successfully.");
+        //    else
+        //        return BadRequest("Ticket creation failed.");
+        //}
 
         // Other ticket controller methods...
     }
