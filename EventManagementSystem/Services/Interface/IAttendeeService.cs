@@ -5,10 +5,13 @@ namespace EventManagementSystem.Services
 {
     public interface IAttendeeService
     {
-        Task<bool> RegisterAttendee(int eventId, string userId);
+        Task<Attendee> GetAttendeeByIdAsync(int attendeeId);
+        Task CreateAttendeeAsync(Attendee newAttendee);
+        Task UpdateAttendeeAsync(Attendee updatedAttendee);
+        Task<bool> DeleteAttendeeAsync(int attendeeId);
+        Task<bool> RegisterAttendeeAsync(int eventId, string userId);
+        Task<bool> CheckInAttendeeAsync(int eventId, string userId);
+        Task<bool> PurchaseTicketAsync(int eventId, string userId);
 
-        Task<bool> PurchaseTicket(int eventId, string userId);
-
-        Task<bool> CheckInAttendee(int eventId, string userId);
     }
 }

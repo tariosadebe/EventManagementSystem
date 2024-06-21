@@ -47,26 +47,7 @@ namespace EventManagementSystem.Services.Implementation
                 _context.Tickets.Remove(ticketToDelete);
                 await _context.SaveChangesAsync();
             }
-        }
 
-        public Task<bool> SetTicketPriceAsync(int ticketId, decimal price)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<Ticket>> GetTicketsByEventIdAsync(int eventId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<bool> ITicketService.UpdateTicketAsync(Ticket ticket)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> CreateTicketAsync(TicketDto ticketDto)
-        {
-            throw new NotImplementedException();
         }
     }
 }

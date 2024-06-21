@@ -39,19 +39,16 @@ namespace EventManagementSystem.Services.Implementation
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteEventAsync(int id)
+        public async Task<bool> DeleteEventAsync(int id)
         {
             var eventToDelete = await _context.Events.FindAsync(id);
             if (eventToDelete != null)
             {
                 _context.Events.Remove(eventToDelete);
                 await _context.SaveChangesAsync();
+                return true;
             }
-        }
-
-        Task<bool> IEventService.DeleteEventAsync(int eventId)
-        {
-            throw new NotImplementedException();
+            return false;
         }
     }
 }

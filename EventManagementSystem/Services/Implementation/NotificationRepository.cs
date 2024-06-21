@@ -48,9 +48,6 @@ namespace EventManagementSystem.Services.Implementation
             }
         }
 
-        public Task<IEnumerable<Notification>> GetNotificationsAsync()
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }

@@ -6,7 +6,7 @@ namespace EventManagementSystem.Services
 {
     public interface INotificationRepository
     {
-        Task<IEnumerable<Notification>> GetNotificationsAsync();
+        Task<IEnumerable<Notification>> GetAllNotificationsAsync();
         Task<Notification> GetNotificationByIdAsync(int id);
         Task AddNotificationAsync(Notification notification);
         Task UpdateNotificationAsync(Notification notification);

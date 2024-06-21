@@ -42,9 +42,6 @@ namespace EventManagementSystem.Services.Implementation
             }
         }
 
-        Task<bool> IEmailService.SendEmailAsync(string toEmail, string subject, string message)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }
