@@ -4,6 +4,7 @@
     {
         public string Id { get; set; } // Primary key
         public string UserName { get; internal set; }
+        public string Username { get; internal set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
@@ -21,5 +22,7 @@
 
         public ICollection<Order> Orders { get; set; } = new List<Order>();
         public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+        public string Password { get; internal set; }
+        public bool IsBanned { get; internal set; }
     }
 }

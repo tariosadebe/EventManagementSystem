@@ -1,40 +1,57 @@
-﻿using EventManagementSystem.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using EventManagementSystem.Data;
+using EventManagementSystem.Models;
+using EventManagementSystem.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class EventService : IEventService
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<EventService> _logger;
 
-        public EventService(ApplicationDbContext context, ILogger<EventService> logger)
+        public EventService(ApplicationDbContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
-        public async Task<bool> DeleteEventAsync(int eventId)
+        public async Task<Event> GetEventByIdAsync(int id)
         {
-            var ev = await _context.Events.Include(e => e.Tickets).FirstOrDefaultAsync(e => e.Id == eventId);
+            return await _context.Events.FindAsync(id);
+        }
 
-            if (ev == null)
-            {
-                _logger.LogWarning($"Event with ID {eventId} not found.");
-                return false;
-            }
+        public async Task<IEnumerable<Event>> GetAllEventsAsync()
+        {
+            return await _context.Events.ToListAsync();
+        }
 
-            if (ev.Tickets.Any(t => t.IsSold))
-            {
-                _logger.LogWarning($"Event with ID {eventId} cannot be deleted because tickets have been sold.");
-                return false;
-            }
-
-            _context.Events.Remove(ev);
+        public async Task CreateEventAsync(Event newEvent)
+        {
+            _context.Events.Add(newEvent);
             await _context.SaveChangesAsync();
+        }
 
-            _logger.LogInformation($"Event with ID {eventId} deleted successfully.");
-            return true;
+        public async Task UpdateEventAsync(Event updatedEvent)
+        {
+            _context.Events.Update(updatedEvent);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteEventAsync(int id)
+        {
+            var eventToDelete = await _context.Events.FindAsync(id);
+            if (eventToDelete != null)
+            {
+                _context.Events.Remove(eventToDelete);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        Task<bool> IEventService.DeleteEventAsync(int eventId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

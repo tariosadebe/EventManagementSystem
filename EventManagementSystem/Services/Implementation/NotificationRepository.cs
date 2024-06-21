@@ -1,4 +1,7 @@
-﻿using EventManagementSystem.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +16,7 @@ namespace EventManagementSystem.Services.Implementation
             _context = context;
         }
 
-        public async Task<IEnumerable<Notification>> GetNotificationsAsync()
+        public async Task<IEnumerable<Notification>> GetAllNotificationsAsync()
         {
             return await _context.Notifications.ToListAsync();
         }
@@ -25,7 +28,7 @@ namespace EventManagementSystem.Services.Implementation
 
         public async Task AddNotificationAsync(Notification notification)
         {
-            await _context.Notifications.AddAsync(notification);
+            _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
         }
 
@@ -43,6 +46,11 @@ namespace EventManagementSystem.Services.Implementation
                 _context.Notifications.Remove(notification);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public Task<IEnumerable<Notification>> GetNotificationsAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

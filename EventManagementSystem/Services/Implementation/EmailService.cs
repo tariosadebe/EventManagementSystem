@@ -1,47 +1,50 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using EventManagementSystem.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace EventManagementSystem.Services.Implementation
 {
     public class EmailService : IEmailService
     {
-        private readonly ILogger<EmailService> _logger;
+        private readonly IConfiguration _configuration;
 
-        public EmailService(ILogger<EmailService> logger)
+        public EmailService(IConfiguration configuration)
         {
-            _logger = logger;
+            _configuration = configuration;
         }
 
-        public async Task<bool> SendEmailAsync(string toEmail, string subject, string message)
+        public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
-            try
+            var fromEmail = _configuration["EmailSettings:FromEmail"];
+            var smtpHost = _configuration["EmailSettings:SmtpHost"];
+            var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+            var smtpUser = _configuration["EmailSettings:SmtpUser"];
+            var smtpPass = _configuration["EmailSettings:SmtpPass"];
+
+            using (var client = new SmtpClient(smtpHost, smtpPort))
             {
-                var smtpClient = new SmtpClient("smtp.example.com")
-                {
-                    Port = 587,
-                    Credentials = new NetworkCredential("username@example.com", "password"),
-                    EnableSsl = true,
-                };
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(smtpUser, smtpPass);
+                client.EnableSsl = true;
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("no-reply@example.com"),
+                    From = new MailAddress(fromEmail),
                     Subject = subject,
-                    Body = message,
-                    IsBodyHtml = true,
+                    Body = body,
+                    IsBodyHtml = true
                 };
                 mailMessage.To.Add(toEmail);
 
-                await smtpClient.SendMailAsync(mailMessage);
-                return true;
+                await client.SendMailAsync(mailMessage);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending email to {Email}", toEmail);
-                return false;
-            }
+        }
+
+        Task<bool> IEmailService.SendEmailAsync(string toEmail, string subject, string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using EventManagementSystem.Data;
+﻿using System.Threading.Tasks;
+using EventManagementSystem.Data;
+using EventManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace EventManagementSystem.Services.Implementation
 {
@@ -16,8 +19,7 @@ namespace EventManagementSystem.Services.Implementation
 
         public async Task<Attendee> GetAttendeeByIdAsync(int attendeeId)
         {
-            return await _context.Attendees
-                .FirstOrDefaultAsync(a => a.Id == attendeeId);
+            return await _context.Attendees.FirstOrDefaultAsync(a => a.Id == attendeeId);
         }
 
         public async Task CreateAttendeeAsync(Attendee newAttendee)
@@ -44,19 +46,61 @@ namespace EventManagementSystem.Services.Implementation
             return false;
         }
 
+        public async Task<bool> RegisterAttendeeAsync(int eventId, string userId)
+        {
+            var attendee = new Attendee
+            {
+                EventId = eventId,
+                UserId = userId,
+                RegistrationDate = DateTime.UtcNow
+            };
+
+            _context.Attendees.Add(attendee);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> PurchaseTicketAsync(int eventId, string userId)
+        {
+            var ticket = new Ticket
+            {
+                EventId = eventId,
+                UserId = userId,
+                PurchaseDate = DateTime.UtcNow
+            };
+
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> CheckInAttendeeAsync(int eventId, string userId)
+        {
+            var attendee = await _context.Attendees
+                .FirstOrDefaultAsync(a => a.EventId == eventId && a.UserId == userId);
+
+            if (attendee != null)
+            {
+                attendee.CheckedIn = true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
         public Task<bool> RegisterAttendee(int eventId, string userId)
         {
-            throw new NotImplementedException("The method RegisterAttendee is not implemented.");
+            throw new NotImplementedException();
         }
 
         public Task<bool> PurchaseTicket(int eventId, string userId)
         {
-            throw new NotImplementedException("The method PurchaseTicket is not implemented.");
+            throw new NotImplementedException();
         }
 
         public Task<bool> CheckInAttendee(int eventId, string userId)
         {
-            throw new NotImplementedException("The method CheckInAttendee is not implemented.");
+            throw new NotImplementedException();
         }
     }
 }

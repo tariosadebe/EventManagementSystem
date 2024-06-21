@@ -1,88 +1,70 @@
-﻿using EventManagementSystem.Data;
-using EventManagementSystem.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using EventManagementSystem.Models;
+using EventManagementSystem.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly ApplicationDbContext _context; private readonly IConfiguration _configuration; private readonly ILogger<AuthenticationService> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly IUserService _userService;
 
-        public AuthenticationService(ApplicationDbContext context, IConfiguration configuration, ILogger<AuthenticationService> logger)
+        public AuthenticationService(IConfiguration configuration, IUserService userService)
         {
-            _context = context; _configuration = configuration; _logger = logger;
+            _configuration = configuration;
+            _userService = userService;
         }
 
-        public async Task<string> Register(UserDto userDto)
+        public async Task<string> GenerateJwtTokenAsync(User user)
         {
-            try
+            var claims = new[]
             {
-                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email);
-                if (existingUser != null)
-                    throw new Exception("User already exists");
-
-                var user = new User
-                {
-                    UserName = userDto.Username,
-                    Email = userDto.Email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
-                    Role = Roles.User,
-                    FirstName = userDto.FirstName,
-                    LastName = userDto.LastName,
-                    Phone = userDto.Phone,
-                    Address = userDto.Address,
-                    City = userDto.City,
-                    State = userDto.State,
-                    ZipCode = userDto.ZipCode,
-                    Country = userDto.Country
-                };
-
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-
-                return GenerateJwtToken(user);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during registration for user {Email}", userDto.Email);
-                throw;
-            }
-        }
-
-        public async Task<string> Login(LoginDto loginDto)
-        {
-            try
-            {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash)) throw new Exception("Invalid credentials");
-
-                return GenerateJwtToken(user);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during login for user {Email}", loginDto.Email);
-                throw;
-            }
-        }
-
-        private string GenerateJwtToken(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["Jwt:ExpireDays"]));
 
-            var token = new JwtSecurityToken(issuer: _configuration["Jwt:Issuer"], audience: _configuration["Jwt:Issuer"], claims: claims, expires: DateTime.Now.AddMinutes(30), signingCredentials: creds);
+            var token = new JwtSecurityToken(
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Issuer"],
+                claims,
+                expires: expires,
+                signingCredentials: creds
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public Task<string> Login(LoginDto loginDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> Register(UserDto userDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> ValidateUserCredentialsAsync(string email, string password)
+        {
+            var user = await _userService.GetUserByEmailAsync(email);
+            if (user == null || user.Password != password)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

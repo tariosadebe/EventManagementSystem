@@ -1,5 +1,9 @@
-﻿using EventManagementSystem.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using EventManagementSystem.Data;
 using EventManagementSystem.Models;
+using EventManagementSystem.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementSystem.Services.Implementation
@@ -13,54 +17,56 @@ namespace EventManagementSystem.Services.Implementation
             _context = context;
         }
 
-        public async Task<bool> CreateTicketAsync(TicketDto ticketDto)
+        public async Task<Ticket> GetTicketByIdAsync(int id)
         {
-            var ticket = new Ticket
-            {
-                EventId = ticketDto.EventId,
-                UserId = ticketDto.UserId,
-                Price = ticketDto.Price,
-                TicketType = ticketDto.TicketType,
-                IsSold = false
-            };
+            return await _context.Tickets.FindAsync(id);
+        }
 
-            _context.Tickets.Add(ticket);
+        public async Task<IEnumerable<Ticket>> GetAllTicketsAsync()
+        {
+            return await _context.Tickets.ToListAsync();
+        }
+
+        public async Task CreateTicketAsync(Ticket newTicket)
+        {
+            _context.Tickets.Add(newTicket);
             await _context.SaveChangesAsync();
-            return true;
         }
 
-        public Task CreateTicketAsync(Ticket ticket)
+        public async Task UpdateTicketAsync(Ticket updatedTicket)
         {
-            throw new NotImplementedException($"{nameof(CreateTicketAsync)}(Ticket ticket) is not implemented.");
+            _context.Tickets.Update(updatedTicket);
+            await _context.SaveChangesAsync();
         }
 
-        public Task<Ticket> GetTicketByIdAsync(int ticketId)
+        public async Task DeleteTicketAsync(int id)
         {
-            throw new NotImplementedException($"{nameof(GetTicketByIdAsync)}(int ticketId) is not implemented.");
-        }
-
-        public async Task<IEnumerable<Ticket>> GetTicketsByEventIdAsync(int eventId)
-        {
-            return await _context.Tickets
-                .Where(t => t.EventId == eventId && !t.IsSold)
-                .ToListAsync();
+            var ticketToDelete = await _context.Tickets.FindAsync(id);
+            if (ticketToDelete != null)
+            {
+                _context.Tickets.Remove(ticketToDelete);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public Task<bool> SetTicketPriceAsync(int ticketId, decimal price)
         {
-            throw new NotImplementedException($"{nameof(SetTicketPriceAsync)}(int ticketId, decimal price) is not implemented.");
+            throw new NotImplementedException();
         }
 
-        public Task<bool> UpdateTicketAsync(Ticket ticket)
+        public Task<List<Ticket>> GetTicketsByEventIdAsync(int eventId)
         {
-            throw new NotImplementedException($"{nameof(UpdateTicketAsync)}(Ticket ticket) is not implemented.");
+            throw new NotImplementedException();
         }
 
-        Task<List<Ticket>> ITicketService.GetTicketsByEventIdAsync(int eventId)
+        Task<bool> ITicketService.UpdateTicketAsync(Ticket ticket)
         {
-            throw new NotImplementedException($"{nameof(GetTicketsByEventIdAsync)}(int eventId) in {nameof(ITicketService)} is not implemented.");
+            throw new NotImplementedException();
         }
 
-        // Other ticket service methods...
+        public Task<bool> CreateTicketAsync(TicketDto ticketDto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

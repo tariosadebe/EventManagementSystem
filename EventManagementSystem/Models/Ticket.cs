@@ -1,4 +1,5 @@
-﻿namespace EventManagementSystem.Models
+﻿
+namespace EventManagementSystem.Models
 {
     public class Ticket
     {
@@ -19,5 +20,6 @@
         public string UserId { get; internal set; }
         public bool IsPaid { get; internal set; }
         public string Code { get; internal set; }
+        public DateTime PurchaseDate { get; internal set; }
     }
 }

@@ -12,4 +12,6 @@ public class Attendee
     public RegistrationStatus RegistrationStatus { get; set; }  
     public User User { get; set; }
     public Event Event { get; set; }
+    public DateTime RegistrationDate { get; internal set; }
+    public bool CheckedIn { get; internal set; }
 }

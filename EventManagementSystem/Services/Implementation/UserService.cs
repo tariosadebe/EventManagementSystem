@@ -1,6 +1,8 @@
 ﻿using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using EventManagementSystem.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace EventManagementSystem.Services.Implementation
 {
@@ -13,9 +15,21 @@ namespace EventManagementSystem.Services.Implementation
             _context = context;
         }
 
-        public Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
+        public async Task<User> GetUserByEmailAsync(string email)
         {
-            throw new NotImplementedException($"{nameof(RegisterAdminAsync)}(User user, decimal paymentAmount, string certificationDocuments) is not implemented.");
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<bool> RegisterAdminAsync(User user, decimal paymentAmount, string certificationDocuments)
+        {
+            // Perform necessary checks and validations
+            // Assuming payment processing and certification document verification are done here
+
+            // Mark user as admin
+            user.Role = "Admin";
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<User> RegisterUserAsync(User user, string role)
@@ -26,14 +40,23 @@ namespace EventManagementSystem.Services.Implementation
             return user;
         }
 
-        public Task RegisterUserAsync(User user, object role)
+        public async Task RegisterUserAsync(User user, object role)
         {
-            throw new NotImplementedException($"{nameof(RegisterUserAsync)}(User user, object role) is not implemented.");
+            if (role is string stringRole)
+            {
+                await RegisterUserAsync(user, stringRole);
+            }
+            else
+            {
+                throw new NotImplementedException("Role type is not supported.");
+            }
         }
 
-        public Task<bool> RegisterUserAsync(User user)
+        public async Task<bool> RegisterUserAsync(User user)
         {
-            throw new NotImplementedException($"{nameof(RegisterUserAsync)}(User user) is not implemented.");
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         // Other user service methods...

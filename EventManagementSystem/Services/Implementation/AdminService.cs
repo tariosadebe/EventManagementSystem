@@ -1,6 +1,11 @@
-﻿using EventManagementSystem.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using EventManagementSystem.Data;
 using EventManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace EventManagementSystem.Services.Implementation
 {
@@ -15,9 +20,18 @@ namespace EventManagementSystem.Services.Implementation
             _logger = logger;
         }
 
-        public Task<bool> CreateAdminAsync(AdminDto adminDto)
+        public async Task<bool> CreateAdminAsync(AdminDto adminDto)
         {
-            throw new NotImplementedException("The method CreateAdminAsync is not implemented.");
+            var admin = new User
+            {
+                Username = adminDto.Username,
+                Password = adminDto.Password,
+                Role = "Admin"
+            };
+
+            _context.Users.Add(admin);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteEventAsync(int eventId, string adminId)
@@ -51,28 +65,46 @@ namespace EventManagementSystem.Services.Implementation
 
             _context.Events.Remove(eventToDelete);
             await _context.SaveChangesAsync();
-            _logger.LogInformation($"Event {eventId} deleted successfully.");
             return true;
         }
 
-        public Task<bool> DeleteEventAsync(int eventId)
+        public async Task<List<User>> GetAllUsersAsync()
         {
-            throw new NotImplementedException("The method DeleteEventAsync without adminId is not implemented.");
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<bool> BanUserAsync(string userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning($"User with ID {userId} not found.");
+                return false;
+            }
+
+            user.IsBanned = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public Task<IEnumerable<EventDto>> GetAdminEventsAsync(string adminId)
         {
-            throw new NotImplementedException("The method GetAdminEventsAsync is not implemented.");
+            throw new NotImplementedException();
         }
 
         public Task<EventDto> GetEventByIdAsync(int eventId)
         {
-            throw new NotImplementedException("The method GetEventByIdAsync is not implemented.");
+            throw new NotImplementedException();
         }
 
         public Task<bool> UpdateEventAsync(int eventId, EventDto eventDto)
         {
-            throw new NotImplementedException("The method UpdateEventAsync is not implemented.");
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteEventAsync(int eventId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

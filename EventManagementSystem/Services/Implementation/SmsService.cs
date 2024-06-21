@@ -1,43 +1,55 @@
-﻿using EventManagementSystem.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using Twilio;
-using Twilio.Rest.Api.V2010.Account;
-using Twilio.Types;
+using EventManagementSystem.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
 
-namespace EventManagementSystem.Services
+namespace EventManagementSystem.Services.Implementation
 {
     public class SmsService : ISmsService
     {
-        private readonly TwilioOptions _twilioOptions;
-        private readonly ILogger<SmsService> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
 
-        public SmsService(IConfiguration configuration, ILogger<SmsService> logger)
+        public SmsService(IConfiguration configuration, HttpClient httpClient)
         {
-            _twilioOptions = configuration.GetSection("Twilio").Get<TwilioOptions>();
-            _logger = logger;
-
-            TwilioClient.Init(_twilioOptions.AccountSid, _twilioOptions.AuthToken);
+            _configuration = configuration;
+            _httpClient = httpClient;
         }
 
         public async Task SendSmsAsync(string phoneNumber, string message)
         {
             try
             {
-                var messageOptions = new CreateMessageOptions(new PhoneNumber(phoneNumber))
-                {
-                    From = new PhoneNumber(_twilioOptions.PhoneNumber),
-                    Body = message
-                };
+                var twilioAccountSid = _configuration["Twilio:AccountSid"];
+                var twilioAuthToken = _configuration["Twilio:AuthToken"];
+                var twilioPhoneNumber = _configuration["Twilio:PhoneNumber"];
 
-                var msg = await MessageResource.CreateAsync(messageOptions);
-                _logger.LogInformation("Sent SMS to {PhoneNumber}: {MessageSid}", phoneNumber, msg.Sid);
+                var url = $"https://api.twilio.com/2010-04-01/Accounts/{twilioAccountSid}/Messages.json";
+                var content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("To", phoneNumber),
+                    new KeyValuePair<string, string>("From", twilioPhoneNumber),
+                    new KeyValuePair<string, string>("Body", message)
+                });
+
+                var authenticationString = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{twilioAccountSid}:{twilioAuthToken}"));
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authenticationString);
+
+                using (var response = await _httpClient.PostAsync(url, content))
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new ApplicationException($"Failed to send SMS: {ex.Message}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending SMS to {PhoneNumber}", phoneNumber);
-                throw;
+                throw new ApplicationException($"An error occurred while sending SMS: {ex.Message}");
             }
         }
     }
